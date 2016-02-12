@@ -127,8 +127,9 @@ dialogue.prototype.getBodyHeight = function () {
   }
   //set text to selected, using timeout
   var inputfieldoutside=this.inputField;
+  var that=this;
   setTimeout(function() {
-
+		    that.nameControl.value=selected;
 		    $(inputfieldoutside).val(selected);
 	      }, 1000);
   //set autocomplete on resource-field
@@ -247,6 +248,7 @@ dialogue.prototype.getBodyHeight = function () {
 //at bottom of initialize function
 //name control is defined in the previous lines
 this.name=name;
+this.nameControl=nameControl;
 this.resourceControl=resourceControl;
 this.optionalControl=optionalControl;
 //get javascript-element of name-field
