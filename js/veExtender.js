@@ -129,7 +129,7 @@ dialogue.prototype.getBodyHeight = function () {
   var inputfieldoutside=this.inputField;
   var that=this;
   setTimeout(function() {
-		    that.nameControl.value=selected;
+		    that.nameControl.setValue(selected);
 		    $(inputfieldoutside).val(selected);
 	      }, 1000);
   //set autocomplete on resource-field
