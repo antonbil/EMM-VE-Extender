@@ -330,6 +330,7 @@ setTimeout(function() {
 }
 //mw.loader.using( 'ext.visualEditor.viewPageTarget.init',loadextra);
 mw.hook( 've.activationComplete' ).add( function() {
+  console.log('voor het laden binnen de library');
 	loadextra();
 
 } );
