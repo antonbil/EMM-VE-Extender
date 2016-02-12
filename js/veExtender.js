@@ -128,8 +128,10 @@ dialogue.prototype.getBodyHeight = function () {
   //set text to selected, using timeout
   var inputfieldoutside=this.inputField;
   var that=this;
+  console.log(that.nameControl);
   setTimeout(function() {
 		    that.nameControl.setValue(selected);
+		      console.log(that.nameControl);
 		    $(inputfieldoutside).val(selected);
 	      }, 1000);
   //set autocomplete on resource-field
