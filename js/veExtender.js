@@ -131,9 +131,12 @@ dialogue.prototype.getBodyHeight = function () {
   console.log("that.nameControl");
   console.log(that.nameControl);
   setTimeout(function() {
+                  if (selected.length>0){
 		    that.nameControl.setValue(selected);
+		    that.nameControl.disabled=true;
 		      console.log(that.nameControl);
 		    $(inputfieldoutside).val(selected);
+		  }
 	      }, 1000);
   //set autocomplete on resource-field
   var that=this;
