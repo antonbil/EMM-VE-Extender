@@ -122,7 +122,8 @@ dialogue.prototype.getBodyHeight = function () {
   //get selected text from SurfaceModel
   var surfaceModel = ve.init.target.getSurface().getModel();
   selected="";
-  for (i=surfaceModel.getFragment().range.start;i<surfaceModel.getFragment().range.end;i++){ 
+  console.log(surfaceModel.getFragment());
+  for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){ 
     selected+=surfaceModel.getFragment().document.data.data[i];
   }
   //set text to selected, using timeout
@@ -138,6 +139,7 @@ dialogue.prototype.getBodyHeight = function () {
 		    $(inputfieldoutside).val(selected);
 		  }
 	      }, 1000);
+  this.pageid="";
   //set autocomplete on resource-field
   var that=this;
   $(this.resourceField).autocomplete({
@@ -145,7 +147,7 @@ dialogue.prototype.getBodyHeight = function () {
       onSelect: function (suggestion) {
 	//todo: see if following lines have meaning. If you delete them the field remains empty....
 	var thehtml = '<strong>Currency Name:</strong> ' + suggestion.value + ' <br> <strong>Symbol:</strong> ' + suggestion.data;
-	$('#searchfield').html(thehtml);
+	//$('#searchfield').html(thehtml);
 	console.log("code selected:"+suggestion.data);
 	that.pageid=suggestion.data;
       },
@@ -172,13 +174,13 @@ dialogue.prototype.getBodyHeight = function () {
 				  parts: [
 				    { template: {
 					target: {
-					  href: 'Template:ZomaarTemplate4',
-					  wt: 'Citezomaar'
+					  href: 'Template:Internal link',
+					  wt: 'Internal link'
 					},
 					params: {
-					  resource: { wt: this.pageid },
+					  link: { wt: this.pageid.length>0?this.pageid:resourceControl.getValue() },
 					  name: { wt: nameControl.getValue() },
-					  optional: { wt: optionalControl.getValue() },
+					  //optional: { wt: optionalControl.getValue() },
 					}
 				    }
 				    }
@@ -188,12 +190,21 @@ dialogue.prototype.getBodyHeight = function () {
 			    }
 			  ]
 			;
-		    ve.init.target
+			 
+
+			 var surfaceModel = ve.init.target.getSurface().getModel();
+			 var range=surfaceModel.getFragment().selection.range;
+			 var rangeToRemove = new ve.Range( range.start, range.end );
+
+var fragment = surfaceModel.getLinearFragment( rangeToRemove );
+fragment.insertContent( mytemplate );
+			  
+		    /*ve.init.target
 			.getSurface()
 			.getModel()
 			.getFragment()
-			.collapseRangeToEnd()
-			.insertContent(mytemplate, false);
+			.collapseToEnd()
+			.insertContent(mytemplate, false).collapseToEnd().select();*/
 
 		    instance.close();
 		},
@@ -218,19 +229,19 @@ dialogue.prototype.getBodyHeight = function () {
 		    }
 		),
 
-		optionalControl = new OO.ui.InputWidget(),
+		/*optionalControl = new OO.ui.InputWidget(),
 		optional = new OO.ui.FieldLayout(
 		    optionalControl,
 		    {
 			label: "Optional"
-		    }),
+		    }),*/
 
 		form = new OO.ui.FieldsetLayout({
 		    $content: [
 			name.$element,
-			resource.$element,
+			resource.$element
 			//lockToVersion.$element,
-			optional.$element
+			//optional.$element
 		    ]
 		}),
 
@@ -256,10 +267,10 @@ dialogue.prototype.getBodyHeight = function () {
 this.name=name;
 this.nameControl=nameControl;
 this.resourceControl=resourceControl;
-this.optionalControl=optionalControl;
+//this.optionalControl=optionalControl;
 //get javascript-element of name-field
 var inputField=name.$field[0].firstElementChild.firstChild;
-inputField.setAttribute("id", "autocomplete");
+inputField.setAttribute("name", "autocomplete");
 //store it in object so it can be retrieved later
 this.inputField=inputField;
 
@@ -295,11 +306,11 @@ setTimeout(function() {
 
 	    resourceControl.$input.attr("type", "text");
 
-	    optionalControl.$input.attr("type", "text");
+	    //optionalControl.$input.attr("type", "text");
 	    
 	    nameControl.$input.css("width", "100%");
 	    resourceControl.$input.css("width", "100%");
-	    optionalControl.$input.css("width", "100%");
+	    //optionalControl.$input.css("width", "100%");
 
 	};
 
@@ -324,8 +335,8 @@ setTimeout(function() {
     };
 
     makeInsertTool(
-	"Tekst in menu",
-	"EigenTekst3",
+	"Internal Link",
+	"Internal Link",
 	"process-models",
 	"process-model"
     );
