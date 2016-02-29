@@ -1,3 +1,21 @@
+	var translations = {
+		en: {
+		  'visualeditor-emm-menutitle':"Internal Link",
+		  'visualeditor-emm-dialogtitle':"Enter Internal Link",
+		  'visualeditor-emm-text-in-page':"Text in page",
+		  'visualeditor-emm-link-to-page' :"Link to page"
+		},
+		nl: {
+		  'visualeditor-emm-menutitle':"Interne Link",
+		  'visualeditor-emm-dialogtitle':"Interne Link",
+		  'visualeditor-emm-text-in-page':"Tekst in pagina",
+		  'visualeditor-emm-link-to-page' :"Link naar pagina"
+		}
+	};
+var userLanguage = mw.config.get( 'wgUserLanguage' );
+	mw.messages.set( translations[userLanguage] || translations.en );
+	//OO.ui.deferMsg( 'visualeditor-mwsignatureinspector-title' );
+ 
  
 
 function loadEMMExtender(){
@@ -298,13 +316,13 @@ dialogue.prototype.getBodyHeight = function () {
     }
 
     makeInsertTool(
-	"Make Internal Link",//title in menu
-	"Enter Internal Link",//Title on top of dialog
+	OO.ui.deferMsg( 'visualeditor-emm-menutitle' )(),//title in menu
+	OO.ui.deferMsg( 'visualeditor-emm-dialogtitle' )(),//Title on top of dialog
 	"process-models",
 	"process-model",
 	'Internal link',//id of template to be generated
-	'Tekst in pagina',//nameLabel
-	'link naar pagina',//resourceLabel
+	OO.ui.deferMsg( 'visualeditor-emm-text-in-page' )(),//nameLabel
+	OO.ui.deferMsg( 'visualeditor-emm-link-to-page' )(),//resourceLabel
 	copySelectedTextToNameField,
 	saveVariablesInInstance
     );
