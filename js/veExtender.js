@@ -1,16 +1,6 @@
  
-//declare event to run when div is visible
-/*$((function ($) {
-      $.each(['show', 'hide'], function (i, ev) {
-        var el = $.fn[ev];
-        $.fn[ev] = function () {
-          this.trigger(ev);
-          return el.apply(this, arguments);
-        };
-      });
-    })(jQuery);*/
 
-function loadextra(){
+function loadEMMExtender(){
 //at start of dialog
 //get pagenames for all pages, with Semantic title as a property
 var pagenames = [];
@@ -19,11 +9,14 @@ var api = new mw.Api();
 api.get( {
     action: 'ask',
     parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
-    query: '[[Modification date::+]]|?Modification date|?Semantic title'//get all pages; include property Semantic title
+    //query was: [[Modification date::+]]|?Modification date|?Heading nl
+    //test-query:[[Category:Context]]|?Modification date|?Heading nl
+    query: '[[Category:Context]]|?Heading nl'//get all pages; include property Semantic title//Semantic title
 } ).done( function ( data ) {
   //parse data
   //first get results within data
     var res=data.query.results;
+    console.log(res);
 
     //array to store results
     var arr=[];
@@ -36,12 +29,13 @@ api.get( {
 	//property defined
 	//now get pagename and Semantic title (if available)
 	var pagename=res[prop].fulltext;
-	var semantictitle=res[prop].printouts['Semantic title'];
+	console.log(res[prop].printouts['Heading nl']);//must be changed to Semantic title
+	var semantictitle=res[prop].printouts['Heading nl'][0];//Semantic title
 	var title='';
-	if (semantictitle.length>0) title=semantictitle[0].fulltext;
-	 //set suggestion to Semantic title, if n.a. set it to pagename
-	if (title.length>0)
-	  arr.push({ value: title, data: pagename });
+	console.log("title:"+semantictitle);
+	//console.log("title length:"+semantictitle.length);
+	if (semantictitle)
+	  arr.push({ value: semantictitle, data: pagename });
 	else
 	  arr.push({ value: pagename, data: pagename });
     }
@@ -53,14 +47,14 @@ api.get( {
 	// Register plugins to VE. will be loaded once the user opens the VE
 
     if (typeof ve === 'undefined') {
-      setTimeout(function() { mw.loader.using( 'ext.visualEditor.viewPageTarget.init',loadextra); }, 1000);
+      setTimeout(function() { mw.loader.using( 'ext.visualEditor.viewPageTarget.init',loadEMMExtender); }, 1000);
       console.log('ve undefined'); 
       return;
     }
 
     
 
-    var makeInsertTool = function(buttonMessage, dialogueMessage, collection, element) {
+    var makeInsertTool = function(buttonMessage, dialogueMessage, collection, element, templateName, nameLabel, resourceLabel,copySelectedTextToNameField,saveVariablesInInstance) {
 	var dialogueName = collection + " dialogue",
 	    toolName = collection + " tool";
 
@@ -82,14 +76,11 @@ api.get( {
 
 
         dialogue.prototype.onDocumentTransact = function () {
-console.log("transact");
         };
         dialogue.prototype.register = function () {
-console.log("register");
         };
 
         dialogue.prototype.onSelect = function () {
-console.log("select");
         };
 
 
@@ -119,40 +110,9 @@ console.log("select");
 //get selected text, and set default text of first field to that selected text
 //do this within getBodyHeight because it is executed before the dialog becomes visible
 dialogue.prototype.getBodyHeight = function () {
-  //get selected text from SurfaceModel
-  var surfaceModel = ve.init.target.getSurface().getModel();
-  selected="";
-  console.log(surfaceModel.getFragment());
-  for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){ 
-    selected+=surfaceModel.getFragment().document.data.data[i];
-  }
-  //set text to selected, using timeout
-  var inputfieldoutside=this.inputField;
-  var that=this;
-  console.log("that.nameControl");
-  console.log(that.nameControl);
-  setTimeout(function() {
-                  if (selected.length>0){
-		    that.nameControl.setValue(selected);
-		    that.nameControl.disabled=true;
-		      console.log(that.nameControl);
-		    $(inputfieldoutside).val(selected);
-		  }
-	      }, 1000);
-  this.pageid="";
-  //set autocomplete on resource-field
-  var that=this;
-  $(this.resourceField).autocomplete({
-      lookup: pagenames,//pagenames are created at the start of dialog
-      onSelect: function (suggestion) {
-	//todo: see if following lines have meaning. If you delete them the field remains empty....
-	var thehtml = '<strong>Currency Name:</strong> ' + suggestion.value + ' <br> <strong>Symbol:</strong> ' + suggestion.data;
-	//$('#searchfield').html(thehtml);
-	console.log("code selected:"+suggestion.data);
-	that.pageid=suggestion.data;
-      },
-      appendTo: this.resourceField.parentElement
-    });
+
+  //function call 
+  copySelectedTextToNameField(this);
   //return height of dialog; this is main purpose of this function
     return 400;
 }
@@ -164,6 +124,13 @@ dialogue.prototype.getBodyHeight = function () {
 		 When we're finished with our dialogue, Insert a template in the page.
 		 */
 		insert = function() {
+		  //check if data is filled in for nameControl
+			var linkdata=this.pageid.length>0?this.pageid:resourceControl.getValue();
+			var namedata=nameControl.getValue();
+			if (linkdata.length==0 || namedata.length==0){
+			  alert('Please fill in data!');
+			  return;
+			}
 		    
 
 			var mytemplate=  [
@@ -174,13 +141,12 @@ dialogue.prototype.getBodyHeight = function () {
 				  parts: [
 				    { template: {
 					target: {
-					  href: 'Template:Internal link',
-					  wt: 'Internal link'
+					  href: 'Template:'+templateName,
+					  wt: templateName
 					},
 					params: {
-					  link: { wt: this.pageid.length>0?this.pageid:resourceControl.getValue() },
-					  name: { wt: nameControl.getValue() },
-					  //optional: { wt: optionalControl.getValue() },
+					  link: { wt: linkdata },
+					  name: { wt: namedata },
 					}
 				    }
 				    }
@@ -192,56 +158,44 @@ dialogue.prototype.getBodyHeight = function () {
 			;
 			 
 
+			//insert result in text
 			 var surfaceModel = ve.init.target.getSurface().getModel();
 			 var range=surfaceModel.getFragment().selection.range;
 			 var rangeToRemove = new ve.Range( range.start, range.end );
 
-var fragment = surfaceModel.getLinearFragment( rangeToRemove );
-fragment.insertContent( mytemplate );
-			  
-		    /*ve.init.target
-			.getSurface()
-			.getModel()
-			.getFragment()
-			.collapseToEnd()
-			.insertContent(mytemplate, false).collapseToEnd().select();*/
+			var fragment = surfaceModel.getLinearFragment( rangeToRemove );
+			fragment.insertContent( mytemplate );
+			//empty elements so they can be reused later on
+			nameControl.setValue("");//resourceControl
+			resourceControl.setValue("");
 
 		    instance.close();
 		},
 
 		nameControl = new OO.ui.InputWidget({
-		    value: "nnnnnw"
+		    value: ""
 		}),
 		name = new OO.ui.FieldLayout(
 		    nameControl,
 		    {
-			label: "Name"
+			label: nameLabel//todo :make it: Tekst in pagina
 		    }
 		),
 		
 		resourceControl = new OO.ui.InputWidget({
-		    value: "r"
+		    value: ""
 		}),
 		resource = new OO.ui.FieldLayout(
 		    resourceControl,
 		    {
-			label: "Resource"
+			label: resourceLabel//todo: make it: link naar pagina
 		    }
 		),
-
-		/*optionalControl = new OO.ui.InputWidget(),
-		optional = new OO.ui.FieldLayout(
-		    optionalControl,
-		    {
-			label: "Optional"
-		    }),*/
 
 		form = new OO.ui.FieldsetLayout({
 		    $content: [
 			name.$element,
 			resource.$element
-			//lockToVersion.$element,
-			//optional.$element
 		    ]
 		}),
 
@@ -253,47 +207,15 @@ fragment.insertContent( mytemplate );
 		    continuous: true,
 		    scrollable: false,
 		    items: [
-			panel//,
-			//searchPanel
+			panel
 		    ]
 		});
 
 	    OO.ui.ProcessDialog.prototype.initialize.call(this);
 
-            this.nameControl=nameControl;
-            
-//at bottom of initialize function
-//name control is defined in the previous lines
-this.name=name;
-this.nameControl=nameControl;
-this.resourceControl=resourceControl;
-//this.optionalControl=optionalControl;
-//get javascript-element of name-field
-var inputField=name.$field[0].firstElementChild.firstChild;
-inputField.setAttribute("name", "autocomplete");
-//store it in object so it can be retrieved later
-this.inputField=inputField;
+	    
 
-//get javascript-element of resource-field
-var resourceField=resource.$field[0].firstElementChild.firstChild;
-//store it in object so it can be retrieved later
-this.resourceField=resourceField;
-resource.$field[0].firstElementChild.setAttribute("id", "searchfield");
-setTimeout(function() {
-  //set values of input-field
-  $(inputField).attr({
-      'id':'autocomplete',
-      'name':"currency",
-      'class':'biginput'
-  });
-  //todo: see if on-show can be used as trigger to set selected value.
-  $(inputField).on('show', function() {
-	console.log('#foo is now visible');
-  });
-  $(inputField).on('hide', function() {
-	console.log('#foo is now hidden');
-  });
-}, 1000);
+	    saveVariablesInInstance(this,nameControl,name,resource);
 
 	    this.content = stack;
 	    this.insert = insert;
@@ -305,12 +227,9 @@ setTimeout(function() {
 	    nameControl.$input.attr("type", "text");
 
 	    resourceControl.$input.attr("type", "text");
-
-	    //optionalControl.$input.attr("type", "text");
 	    
 	    nameControl.$input.css("width", "100%");
 	    resourceControl.$input.css("width", "100%");
-	    //optionalControl.$input.css("width", "100%");
 
 	};
 
@@ -333,19 +252,66 @@ setTimeout(function() {
 
 	ve.ui.toolFactory.register(tool);
     };
+    
+
+    var copySelectedTextToNameField=function(that){
+      //get selected text from SurfaceModel
+      var surfaceModel = ve.init.target.getSurface().getModel();
+      selected="";
+      console.log(surfaceModel.getFragment());
+      for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){ 
+	selected+=surfaceModel.getFragment().document.data.data[i];
+      }
+      //set text to selected
+      if (selected.length>0){
+	that.nameControl.setValue(selected);
+	that.nameControl.disabled=true;//does not work!?
+	var inputfieldoutside=that.inputField;
+	$(inputfieldoutside).val(selected);
+      }
+
+      that.pageid="";
+      //set autocomplete on resource-field
+      $(that.resourceField).autocomplete({
+	  lookup: pagenames,//pagenames are created at the start of dialog
+	  onSelect: function (suggestion) {
+	    that.pageid=suggestion.data;
+	  },
+	  appendTo: that.resourceField.parentElement
+	});
+    }
+    
+    var saveVariablesInInstance=function(that,nameControl,name,resource){
+      //at bottom of initialize function
+
+      //store it in object so it can be retrieved later
+      that.nameControl=nameControl;
+      //get javascript-element of fields, and save it in instance-variables
+      var inputField=name.$field[0].firstElementChild.firstChild;
+
+      that.inputField=inputField;
+
+      //get javascript-element of resource-field
+      var resourceField=resource.$field[0].firstElementChild.firstChild;
+      //store it in object so it can be retrieved later
+      that.resourceField=resourceField;
+    }
 
     makeInsertTool(
-	"Internal Link",
-	"Internal Link",
+	"Make Internal Link",//title in menu
+	"Enter Internal Link",//Title on top of dialog
 	"process-models",
-	"process-model"
+	"process-model",
+	'Internal link',//id of template to be generated
+	'Tekst in pagina',//nameLabel
+	'link naar pagina',//resourceLabel
+	copySelectedTextToNameField,
+	saveVariablesInInstance
     );
 
 }
-//mw.loader.using( 'ext.visualEditor.viewPageTarget.init',loadextra);
-mw.hook( 've.activationComplete' ).add( function() {
-  console.log('voor het laden binnen de library');
-	loadextra();
 
+mw.hook( 've.activationComplete' ).add( function() {
+	loadEMMExtender();
 } );
 
