@@ -29,7 +29,7 @@ api.get( {
     parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
     //query was: [[Modification date::+]]|?Modification date|?Heading nl
     //test-query:[[Category:Context]]|?Modification date|?Heading nl
-    query: '[[Category:Context]]|?Heading nl'//get all pages; include property Semantic title//Semantic title
+    query: '[[Category:Context]]|?Semantic title'//get all pages; include property Semantic title//Semantic title/Heading nl
 } ).done( function ( data ) {
   //parse data
   //first get results within data
@@ -47,11 +47,8 @@ api.get( {
 	//property defined
 	//now get pagename and Semantic title (if available)
 	var pagename=res[prop].fulltext;
-	console.log(res[prop].printouts['Heading nl']);//must be changed to Semantic title
-	var semantictitle=res[prop].printouts['Heading nl'][0];//Semantic title
+	var semantictitle=res[prop].printouts['Semantic title'][0];//Semantic title/Heading nl
 	var title='';
-	console.log("title:"+semantictitle);
-	//console.log("title length:"+semantictitle.length);
 	if (semantictitle)
 	  arr.push({ value: semantictitle, data: pagename });
 	else
@@ -258,17 +255,22 @@ dialogue.prototype.getBodyHeight = function () {
 	 */
 	var tool = function(toolGroup, config) {
 	    ve.ui.Tool.call(this, toolGroup, config);
+	    	this.setDisabled( false );
+		this.$element.addClass( 'oo-ui-tool-name-extratemplate' );
 	};
 
 	OO.inheritClass(tool, ve.ui.Tool);
 	tool.static.name = toolName,
 	tool.static.title = buttonMessage;
+	tool.static.group = 'tools';
+	tool.static.icon = 'template';
 	tool.static.dialog = dialogueName;
 	tool.prototype.onSelect = function () {
 	    this.toolbar.getSurface().execute('window', 'open', dialogueName, null);
 	};    
 
 	ve.ui.toolFactory.register(tool);
+      
     };
     
 
