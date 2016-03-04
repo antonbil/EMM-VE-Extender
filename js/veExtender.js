@@ -1,15 +1,22 @@
 	var translations = {
 		en: {
-		  'visualeditor-emm-menutitle':"Internal Link",
-		  'visualeditor-emm-dialogtitle':"Enter Internal Link",
+		  'visualeditor-emm-menuinternallinktitle':"Internal Link",
+		  'visualeditor-emm-dialoginternallinktitle':"Enter Internal Link",
+		  'visualeditor-emm-menuexternallinktitle':"External Link",
+		  'visualeditor-emm-dialogexternallinktitle':"Enter External Link",
 		  'visualeditor-emm-text-in-page':"Text in page",
-		  'visualeditor-emm-link-to-page' :"Link to page"
+		  'visualeditor-emm-link-to-page' :"Link to page",
+		  'visualeditor-emm-link-to-resource' :"Link to resource"
 		},
 		nl: {
-		  'visualeditor-emm-menutitle':"Interne Link",
-		  'visualeditor-emm-dialogtitle':"Interne Link",
+		  'visualeditor-emm-menuinternallinktitle':"Interne Link",
+		  'visualeditor-emm-dialoginternallinktitle':"Interne Link",
+		  'visualeditor-emm-menuexternallinktitle':"Externe Link",
+		  'visualeditor-emm-dialogexternallinktitle':"Externe Link",
 		  'visualeditor-emm-text-in-page':"Tekst in pagina",
-		  'visualeditor-emm-link-to-page' :"Link naar pagina"
+		  'visualeditor-emm-link-to-page' :"Link naar pagina",
+		  'visualeditor-emm-link-to-resource' :"Link naar resource"
+
 		}
 	};
 var userLanguage = mw.config.get( 'wgUserLanguage' );
@@ -17,8 +24,23 @@ var userLanguage = mw.config.get( 'wgUserLanguage' );
 	//OO.ui.deferMsg( 'visualeditor-mwsignatureinspector-title' );
  
  
-
 function loadEMMExtender(){
+  loadEMMDialog('Internal link',"1",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
+    'Context',function(namedata,linkdata){return {
+					  link: { wt: linkdata },
+					  name: { wt: namedata },
+					}
+    }
+  );
+  loadEMMDialog('External link',"2",'visualeditor-emm-menuexternallinktitle','visualeditor-emm-dialogexternallinktitle','visualeditor-emm-link-to-resource',
+    'Resource Description',function(namedata,linkdata){return {
+					  resource: { wt: linkdata },
+					  name: { wt: namedata },
+					}
+    }
+  );
+}
+  function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,category,templateResult){
 //at start of dialog
 //get pagenames for all pages, with Semantic title as a property
 var pagenames = [];
@@ -29,7 +51,7 @@ api.get( {
     parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
     //query was: [[Modification date::+]]|?Modification date|?Heading nl
     //test-query:[[Category:Context]]|?Modification date|?Heading nl
-    query: '[[Category:Context]]|?Semantic title'//get all pages; include property Semantic title//Semantic title/Heading nl
+    query: '[[Category:'+category+']]|?Semantic title'//get all pages; include property Semantic title//Semantic title/Heading nl
 } ).done( function ( data ) {
   //parse data
   //first get results within data
@@ -58,14 +80,6 @@ api.get( {
     pagenames=arr;
 });
  
-
-	// Register plugins to VE. will be loaded once the user opens the VE
-
-    if (typeof ve === 'undefined') {
-      setTimeout(function() { mw.loader.using( 'ext.visualEditor.viewPageTarget.init',loadEMMExtender); }, 1000);
-      console.log('ve undefined'); 
-      return;
-    }
 
     
 
@@ -140,10 +154,10 @@ dialogue.prototype.getBodyHeight = function () {
 		 */
 		insert = function() {
 		  //check if data is filled in for nameControl
-			var linkdata=this.pageid.length>0?this.pageid:resourceControl.getValue();
+			var linkdata=this.pageid.length>0?this.pageid:"";
 			var namedata=nameControl.getValue();
-			if (linkdata.length==0 || namedata.length==0){
-			  alert('Please fill in data!');
+			if (linkdata.length==0 ){
+			  alert('Please select an existing item!');
 			  return;
 			}
 		    
@@ -159,10 +173,7 @@ dialogue.prototype.getBodyHeight = function () {
 					  href: 'Template:'+templateName,
 					  wt: templateName
 					},
-					params: {
-					  link: { wt: linkdata },
-					  name: { wt: namedata },
-					}
+					params: templateResult(namedata,linkdata)
 				    }
 				    }
 				  ]
@@ -278,10 +289,17 @@ dialogue.prototype.getBodyHeight = function () {
       //get selected text from SurfaceModel
       var surfaceModel = ve.init.target.getSurface().getModel();
       selected="";
-      console.log(surfaceModel.getFragment());
-      for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){ 
-	selected+=surfaceModel.getFragment().document.data.data[i];
-      }
+      console.log(surfaceModel);
+      //todo: check if selection.range.start exists, otherwise selection empty
+      if (surfaceModel.getFragment().selection.range)
+	for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){ 
+	  var element=surfaceModel.getFragment().document.data.data[i];
+	  var toAdd=element;
+	  if (element === Array)
+	    toAdd=element[0];//
+	  console.log(toAdd);
+	  selected+=toAdd;
+	}
       //set text to selected
       if (selected.length>0){
 	that.nameControl.setValue(selected);
@@ -318,20 +336,26 @@ dialogue.prototype.getBodyHeight = function () {
     }
 
     makeInsertTool(
-	OO.ui.deferMsg( 'visualeditor-emm-menutitle' )(),//title in menu
-	OO.ui.deferMsg( 'visualeditor-emm-dialogtitle' )(),//Title on top of dialog
-	"process-models",
+	OO.ui.deferMsg( menutext )(),//title in menu
+	OO.ui.deferMsg( dialogtext )(),//Title on top of dialog
+	"process-models"+toolid,
 	"process-model",
-	'Internal link',//id of template to be generated
+	template,//id of template to be generated
 	OO.ui.deferMsg( 'visualeditor-emm-text-in-page' )(),//nameLabel
-	OO.ui.deferMsg( 'visualeditor-emm-link-to-page' )(),//resourceLabel
+	OO.ui.deferMsg( linktotext )(),//resourceLabel
 	copySelectedTextToNameField,
 	saveVariablesInInstance
-    );
+    );//todo: make extra basic dialog, add function with makeInsertTool to execute it, instead of that.insert();--> button text must bee continue instead of save.
 
 }
 
 mw.hook( 've.activationComplete' ).add( function() {
-	loadEMMExtender();
+	// Register plugins to VE. will be loaded once the user opens the VE
+
+    if (typeof ve === 'undefined') {
+      setTimeout(function() { mw.loader.using( 'ext.visualEditor.viewPageTarget.init',loadEMMExtender); }, 1000);
+      console.log('ve undefined'); 
+      return;
+    }else loadEMMExtender();
 } );
 
