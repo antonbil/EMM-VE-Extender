@@ -2,19 +2,26 @@
 		en: {
 		  'visualeditor-emm-menuinternallinktitle':"Internal Link",
 		  'visualeditor-emm-dialoginternallinktitle':"Enter Internal Link",
+		  'visualeditor-emm-menucitetitle':"Cite",
+		  //todo:remove nocite resources
+		  'visualeditor-emm-dialogcitetitle':"Enter Cite",
 		  'visualeditor-emm-menuexternallinktitle':"External Link",
 		  'visualeditor-emm-dialogexternallinktitle':"Enter External Link",
 		  'visualeditor-emm-text-in-page':"Text in page",
 		  'visualeditor-emm-link-to-page' :"Link to page",
+		  'visualeditor-mwtemplate-cite-optional' :"Optional",
 		  'visualeditor-emm-link-to-resource' :"Link to resource"
 		},
 		nl: {
 		  'visualeditor-emm-menuinternallinktitle':"Interne Link",
 		  'visualeditor-emm-dialoginternallinktitle':"Interne Link",
+		  'visualeditor-emm-menucitetitle':"Citeer",
+		  'visualeditor-emm-dialogcitetitle':"Vul in: Citeer",
 		  'visualeditor-emm-menuexternallinktitle':"Externe Link",
 		  'visualeditor-emm-dialogexternallinktitle':"Externe Link",
 		  'visualeditor-emm-text-in-page':"Tekst in pagina",
 		  'visualeditor-emm-link-to-page' :"Link naar pagina",
+		  'visualeditor-mwtemplate-cite-optional' :"Optioneel",
 		  'visualeditor-emm-link-to-resource' :"Link naar resource"
 
 		}
@@ -26,23 +33,35 @@ var userLanguage = mw.config.get( 'wgUserLanguage' );
  
 function loadEMMExtender(){
   loadEMMDialog('Internal link',"1",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
-    'Context',function(namedata,linkdata){return {
+    '[[Category:Context]]',function(namedata,linkdata){return {
 					  link: { wt: linkdata },
 					  name: { wt: namedata },
 					}
-    }
+    }, []
   );
   loadEMMDialog('External link',"2",'visualeditor-emm-menuexternallinktitle','visualeditor-emm-dialogexternallinktitle','visualeditor-emm-link-to-resource',
-    'Resource Description',function(namedata,linkdata){return {
+    '[[Category:Resource Description]] [[Hyperlink::+]]',function(namedata,linkdata){return {
 					  resource: { wt: linkdata },
 					  name: { wt: namedata },
 					}
-    }
+    }, []
   );
+  loadEMMDialog('Cite',"3",'visualeditor-emm-menucitetitle','visualeditor-emm-dialogcitetitle','visualeditor-emm-link-to-resource',
+    '[[Category:Resource Description]] [[:+]] OR [[Category:Resource Description]] [[File:+]] [[Pagename::~*.pdf||~*.doc||~*.docx||~*.ppt||~*.pptx||~*.odt||~*.odc||~*.odp||~*.odg||~*.txt]]',function(namedata,linkdata, data){
+                                        console.log(data);
+					var optionaldata=data.optional.wt;
+					return {
+					  resource: { wt: linkdata },
+					  name: { wt: namedata },
+					  optional: {wt: optionaldata}
+					}
+    }, [{label:"optional",defaultval:"",type:"text",description:OO.ui.deferMsg( 'visualeditor-mwtemplate-cite-optional' )}]
+  );
+
 }
-  function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,category,templateResult){
-//at start of dialog
-//get pagenames for all pages, with Semantic title as a property
+  function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,askQuery,templateResult,myfields){
+ //at start of dialog
+//get pagenames for pages with askQuery, with Semantic title as a property
 var pagenames = [];
 var api = new mw.Api();
 // Start a "GET" request
@@ -51,7 +70,7 @@ api.get( {
     parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
     //query was: [[Modification date::+]]|?Modification date|?Heading nl
     //test-query:[[Category:Context]]|?Modification date|?Heading nl
-    query: '[[Category:'+category+']]|?Semantic title'//get all pages; include property Semantic title//Semantic title/Heading nl
+    query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
 } ).done( function ( data ) {
   //parse data
   //first get results within data
@@ -69,7 +88,7 @@ api.get( {
 	//property defined
 	//now get pagename and Semantic title (if available)
 	var pagename=res[prop].fulltext;
-	var semantictitle=res[prop].printouts['Semantic title'][0];//Semantic title/Heading nl
+	var semantictitle=res[prop].printouts['Semantic title'][0];
 	var title='';
 	if (semantictitle)
 	  arr.push({ value: semantictitle, data: pagename });
@@ -83,8 +102,10 @@ api.get( {
 
     
 
-    var makeInsertTool = function(buttonMessage, dialogueMessage, collection, element, templateName, nameLabel, resourceLabel,copySelectedTextToNameField,saveVariablesInInstance) {
-	var dialogueName = collection + " dialogue",
+    var makeInsertTool = function(buttonMessage, dialogueMessage, collection, element, templateName, nameLabel, resourceLabel,
+				  copySelectedTextToNameField,saveVariablesInInstance
+				 , myfields) {
+	var dialogueName = collection + " dialogue",//collection=id to make dialog unique
 	    toolName = collection + " tool";
 
 	/*
@@ -154,6 +175,10 @@ dialogue.prototype.getBodyHeight = function () {
 		 */
 		insert = function() {
 		  //check if data is filled in for nameControl
+		    var data={};
+		    for (var i=0;i<instance.fields.length;i++){
+		      data[instance.fields[i].text]={ wt: instance.fields[i].control.getValue()};
+		    }
 			var linkdata=this.pageid.length>0?this.pageid:"";
 			var namedata=nameControl.getValue();
 			if (linkdata.length==0 ){
@@ -173,7 +198,7 @@ dialogue.prototype.getBodyHeight = function () {
 					  href: 'Template:'+templateName,
 					  wt: templateName
 					},
-					params: templateResult(namedata,linkdata)
+					params: templateResult(namedata,linkdata,data)
 				    }
 				    }
 				  ]
@@ -218,11 +243,44 @@ dialogue.prototype.getBodyHeight = function () {
 		    }
 		),
 
+		getElements=function (fields){
+		  //for each field in parametr, create an element in the dialogue
+		  var arr=[];
+		  for (var i=0;i<fields.length;i++)
+		    arr.push(fields[i].label.$element);
+		  return arr
+		},
+		getFields=function (label,defaultval,type,description){
+		  //assign an input-widget to each field
+		  var control = new OO.ui.InputWidget({
+				    value: defaultval
+				});
+		  control.$input.attr("type", type);
+		  control.$input.css("width", "100%");
+		  return {		
+		    control:control,
+		    label : new OO.ui.FieldLayout(
+			control,
+			{
+			    label: description
+			}
+		    ),
+		    text:label
+		  }
+		},
+		loadFields=function (myfields){
+		  var arr=[];
+		  for (var i=0;i<myfields.length;i++)
+		  arr.push(getFields(myfields[i].label,myfields[i].defaultval,myfields[i].type,myfields[i].description));
+		  //console.log(getElements(arr));
+		  return arr;
+		},
+		fields=loadFields(myfields),//calls previous function. COuld be combined in an anonymous function
 		form = new OO.ui.FieldsetLayout({
 		    $content: [
 			name.$element,
 			resource.$element
-		    ]
+		    ].concat(getElements(fields))
 		}),
 
 		panel = new OO.ui.PanelLayout({
@@ -245,6 +303,7 @@ dialogue.prototype.getBodyHeight = function () {
 
 	    this.content = stack;
 	    this.insert = insert;
+	    this.fields=fields;
 
 	    this.$body.append(this.content.$element);
 
@@ -276,8 +335,11 @@ dialogue.prototype.getBodyHeight = function () {
 	tool.static.group = 'tools';
 	tool.static.icon = 'template';
 	tool.static.dialog = dialogueName;
+	//TODO unselect item if action done, following does not work....
+	tool.static.deactivateOnSelect = true;
 	tool.prototype.onSelect = function () {
 	    this.toolbar.getSurface().execute('window', 'open', dialogueName, null);
+	    this.setActive( false );
 	};    
 
 	ve.ui.toolFactory.register(tool);
@@ -344,7 +406,7 @@ dialogue.prototype.getBodyHeight = function () {
 	OO.ui.deferMsg( 'visualeditor-emm-text-in-page' )(),//nameLabel
 	OO.ui.deferMsg( linktotext )(),//resourceLabel
 	copySelectedTextToNameField,
-	saveVariablesInInstance
+	saveVariablesInInstance,myfields
     );//todo: make extra basic dialog, add function with makeInsertTool to execute it, instead of that.insert();--> button text must bee continue instead of save.
 
 }
