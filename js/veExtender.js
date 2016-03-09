@@ -63,41 +63,7 @@ function loadEMMExtender(){
  //at start of dialog
 //get pagenames for pages with askQuery, with Semantic title as a property
 var pagenames = [];
-var api = new mw.Api();
-// Start a "GET" request
-api.get( {
-    action: 'ask',
-    parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
-    //query was: [[Modification date::+]]|?Modification date|?Heading nl
-    //test-query:[[Category:Context]]|?Modification date|?Heading nl
-    query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
-} ).done( function ( data ) {
-  //parse data
-  //first get results within data
-    var res=data.query.results;
-    console.log(res);
 
-    //array to store results
-    var arr=[];
-    //for all objects in result
-    for (prop in res) {
-	if (!res.hasOwnProperty(prop)) {
-	    //The current property is not a direct property of p
-	    continue;
-	}
-	//property defined
-	//now get pagename and Semantic title (if available)
-	var pagename=res[prop].fulltext;
-	var semantictitle=res[prop].printouts['Semantic title'][0];
-	var title='';
-	if (semantictitle)
-	  arr.push({ value: semantictitle, data: pagename });
-	else
-	  arr.push({ value: pagename, data: pagename });
-    }
-
-    pagenames=arr;
-});
  
 
     
@@ -160,10 +126,50 @@ api.get( {
 //get selected text, and set default text of first field to that selected text
 //do this within getBodyHeight because it is executed before the dialog becomes visible
 dialogue.prototype.getBodyHeight = function () {
+  
+  //first get data for input-fields. Get query-data, and add selected data
+  //save instance
+  var dialogthat=this;
+  
+  var api = new mw.Api();
+  // Start a "GET" request
+  api.get( {
+      action: 'ask',
+      parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
+      //query was: [[Modification date::+]]|?Modification date|?Heading nl
+      //test-query:[[Category:Context]]|?Modification date|?Heading nl
+      query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
+  } ).done( function ( data ) {
+    //parse data
+    //first get results within data
+      var res=data.query.results;
+      //console.log(res);
 
-  //function call 
-  copySelectedTextToNameField(this);
-  //return height of dialog; this is main purpose of this function
+      //array to store results
+      var arr=[];
+      //for all objects in result
+      for (prop in res) {
+	  if (!res.hasOwnProperty(prop)) {
+	      //The current property is not a direct property of p
+	      continue;
+	  }
+	  //property defined
+	  //now get pagename and Semantic title (if available)
+	  var pagename=res[prop].fulltext;
+	  var semantictitle=res[prop].printouts['Semantic title'][0];
+	  var title='';
+	  if (semantictitle)
+	    arr.push({ value: semantictitle, data: pagename });
+	  else
+	    arr.push({ value: pagename, data: pagename });
+      }
+
+      pagenames=arr;
+    //store data in inputfields 
+    copySelectedTextToNameField(dialogthat);
+  });
+
+  //return height of dialog; this is original purpose of this function
     return 400;
 }
 
