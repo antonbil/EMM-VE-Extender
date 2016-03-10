@@ -1,28 +1,27 @@
 	var translations = {
 		en: {
-		  'visualeditor-emm-menuinternallinktitle':"Internal Link",
-		  'visualeditor-emm-dialoginternallinktitle':"Enter Internal Link",
-		  'visualeditor-emm-menucitetitle':"Cite",
-		  //todo:remove nocite resources
-		  'visualeditor-emm-dialogcitetitle':"Enter Cite",
-		  'visualeditor-emm-menuexternallinktitle':"External Link",
-		  'visualeditor-emm-dialogexternallinktitle':"Enter External Link",
-		  'visualeditor-emm-text-in-page':"Text in page",
-		  'visualeditor-emm-link-to-page' :"Link to page",
-		  'visualeditor-mwtemplate-cite-optional' :"Optional",
-		  'visualeditor-emm-link-to-resource' :"Link to resource"
+		  'visualeditor-emm-menuinternallinktitle':"Link (page)",
+		  'visualeditor-emm-menuexternallinktitle':"Link (website)",
+		  'visualeditor-emm-menucitetitle':"Link (document)",
+		  'visualeditor-emm-dialoginternallinktitle':"Insert link to page",
+		  'visualeditor-emm-dialogexternallinktitle':"Insert link to website",
+		  'visualeditor-emm-dialogcitetitle':"Insert link to document",
+		  'visualeditor-emm-text-in-page':"Text:",
+		  'visualeditor-emm-link-to-page' :"Link:",
+		  'visualeditor-mwtemplate-cite-optional' :"Optional text:",
+		  'visualeditor-emm-link-to-resource' :"Link:"
 		},
 		nl: {
-		  'visualeditor-emm-menuinternallinktitle':"Interne Link",
-		  'visualeditor-emm-dialoginternallinktitle':"Interne Link",
-		  'visualeditor-emm-menucitetitle':"Citeer",
-		  'visualeditor-emm-dialogcitetitle':"Vul in: Citeer",
-		  'visualeditor-emm-menuexternallinktitle':"Externe Link",
-		  'visualeditor-emm-dialogexternallinktitle':"Externe Link",
-		  'visualeditor-emm-text-in-page':"Tekst in pagina",
-		  'visualeditor-emm-link-to-page' :"Link naar pagina",
-		  'visualeditor-mwtemplate-cite-optional' :"Optioneel",
-		  'visualeditor-emm-link-to-resource' :"Link naar resource"
+		  'visualeditor-emm-menuinternallinktitle':"Link (pagina)",
+		  'visualeditor-emm-menuexternallinktitle':"Link (website)",
+		  'visualeditor-emm-menucitetitle':"Link (document)",
+		  'visualeditor-emm-dialoginternallinktitle':"Invoegen link naar pagina",
+		  'visualeditor-emm-dialogexternallinktitle':"Invoegen link naar website",
+		  'visualeditor-emm-dialogcitetitle':"Invoegen link naar document",
+		  'visualeditor-emm-text-in-page':"Tekst:",
+		  'visualeditor-emm-link-to-page' :"Link:",
+		  'visualeditor-mwtemplate-cite-optional' :"Optionele tekst:",
+		  'visualeditor-emm-link-to-resource' :"Link:"
 
 		}
 	};
@@ -33,7 +32,7 @@ var userLanguage = mw.config.get( 'wgUserLanguage' );
  
 function loadEMMExtender(){
   loadEMMDialog('Internal link',"1",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
-    '[[Category:Context]]',function(namedata,linkdata){return {
+    '[[Category:Light Context]]',function(namedata,linkdata){return {
 					  link: { wt: linkdata },
 					  name: { wt: namedata },
 					}
