@@ -1,7 +1,74 @@
+//some helper functions
+function spacesToUnderscore(s){
+  return s.replace(/ /g,"_");
+}
+/*
+ * opens a new window or tab with the address given
+ */
+function doOpen(address){
+  //despair! where does this come from?
+  address=address.replace("%E2%80%8B", "");
+  //%E2%80%8B
+  //console.log('open address:'+address+':end');
+	  var win = window.open(address, '_blank');
+	  if(win){
+	      //Browser has allowed it to be opened
+	      win.focus();
+	  }else{
+	      //Broswer has blocked it
+	      alert('Error creating or opening page.');
+	  }
+}
+/*
+ * returns server-address before index.php
+ */
+function getStartAddress(){
+	    var totaladdress=window.location.href;
+	    return totaladdress.substr(0, totaladdress.indexOf('index.php')); 
+}
+
+//global variable to keep page properties
+var pageProperties={supercontext:"",topcontext:"",pagename:""};
+function getContextOfCurrentPage(){
+	pageProperties.pagename=mw.config.get( 'wgPageName' );
+
+    var api = new mw.Api();
+    api.get( {
+	action: 'ask',
+	parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
+	query: '[['+pageProperties.pagename+']]|?Supercontext|?Topcontext'//get all pages; include property Semantic title
+    } ).done( function ( data ) {
+      var res=data.query.results;
+      //console.log(res);
+
+      //var contexttype='';
+      //for all objects in result
+      for (prop in res) {
+	  if (!res.hasOwnProperty(prop)) {
+	      //The current property is not a direct property of p
+	      continue;
+	  }
+
+	  var supercontext=res[prop].printouts['Supercontext'][0].fulltext;
+	  pageProperties.supercontext=supercontext;
+	  //console.log('super:'+supercontext);
+	  var topcontext=res[prop].printouts['Topcontext'][0].fulltext;
+	  pageProperties.topcontext=topcontext;
+	  //contexttype=res[prop].printouts['Contexttype'][0].fulltext;
+      }
+      
+    });
+}
+
+/*
+ * main function
+ */
 function addEMMResources(){
      var toolFactory = new OO.ui.ToolFactory();
      var toolGroupFactory = new OO.ui.ToolGroupFactory();
      var toolbar = new OO.ui.Toolbar( toolFactory, toolGroupFactory );
+     getContextOfCurrentPage();
+     //get context of current page
 
      // Register two more tools, nothing interesting here
      function AddPageTool() {
@@ -12,10 +79,10 @@ function addEMMResources(){
      AddPageTool.static.icon = 'source';
      AddPageTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddpagetitle' )();
      AddPageTool.prototype.onSelect = function () {
-         //alert( 'AddPage tool clicked!' );
-       console.log(ve.ui);
        //ve.init.target.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
        processResult();
+
+
          this.setActive( false );
      };
      toolFactory.register( AddPageTool );
@@ -28,18 +95,10 @@ function addEMMResources(){
      AddHyperlinkTool.static.icon = 'source';
      AddHyperlinkTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddhyperlinktitle' )();
      AddHyperlinkTool.prototype.onSelect = function () {
-       //ve.init.target.getSurface().execute( 'window', 'open', 'addhyperlinkdialog', null );
-         var totaladdress=window.location.href;
-	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
-	  var pagename=mw.config.get( 'wgPageName' )
-	  var win = window.open(startaddress+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pagename, '_blank');
-	  if(win){
-	      //Browser has allowed it to be opened
-	      win.focus();
-	  }else{
-	      //Broswer has blocked it
-	      alert('Please allow popups for this site');
-	  }
+       //ve.init.target.getSurface().execute( 'window', 'open', 'addhyperlinkdialog', null );//addlocallinkdialog
+
+	  var address=getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename;
+	  doOpen(address);
          this.setActive( false );
      };
      toolFactory.register( AddHyperlinkTool );
@@ -52,23 +111,12 @@ function addEMMResources(){
      AddInternalDocumentTool.static.icon = 'source';
      AddInternalDocumentTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddinternaldocumenttitle' )();
      AddInternalDocumentTool.prototype.onSelect = function () {
-         var totaladdress=window.location.href;
-	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
-	  var pagename=mw.config.get( 'wgPageName' )
-	  var win = window.open(startaddress+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pagename, '_blank');
-	  if(win){
-	      //Browser has allowed it to be opened
-	      win.focus();
-	  }else{
-	      //Broswer has blocked it
-	      alert('Please allow popups for this site');
-	  }
+	 doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
+       //ve.init.target.getSurface().execute( 'window', 'open', 'addlocallinkdialog', null );//
          this.setActive( false );
      };
      toolFactory.register( AddInternalDocumentTool );
 
-     // Finally define which tools and in what order appear in the toolbar. Each tool may only be
-     // used once (but not all defined tools must be used).
      toolbar.setup( [
          {
              // 'list' tool groups display both the titles and icons, in a dropdown list.
@@ -77,9 +125,7 @@ function addEMMResources(){
              label: OO.ui.deferMsg( 'visualeditor-emm-menuresourcemenuname' )(),
              include: [ 'addpage', 'addhyperlink', 'addinternaldocument']
          }
-         // Note how the tools themselves are toolgroup-agnostic - the same tool can be displayed
-         // either in a 'list' or a 'bar'. There is a 'menu' tool group too, not showcased here,
-         // since it's more complicated to use. (See the next example snippet on this page.)
+
      ] );
 
      //console.log(toolbar);
@@ -87,69 +133,38 @@ function addEMMResources(){
          toolbar.$group);
      
      		  function processResult(){
-		    console.log('save!');
-		    var api = new mw.Api();
-		    var totaladdress=window.location.href;
-		    var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
-		    var pagename=mw.config.get( 'wgPageName' );
+		    //console.log('save!');
 
-		    api.get( {
-			action: 'ask',
-			parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
-			query: '[['+pagename+']]|?Supercontext|?Topcontext'//get all pages; include property Semantic title
-		    } ).done( function ( data ) {
-		      var res=data.query.results;
-		      console.log(res);
+		    if (pageProperties.supercontext.length==0 || pageProperties.topcontext.length==0 ){
+		      alert('Sorry, cannot create the page. Properties needed in page are lacking.');
+		    } else {
+		      var cmd='Light_Context?Light_Context%5BSupercontext%5D='+pageProperties.supercontext+'&Light_Context%5BTopcontext%5D='+pageProperties.topcontext+'&Light_Context%5BContext+type%5D=Situation';
+		      var uri=getStartAddress()+'index.php/Special:FormEdit/'+cmd;
+		      //var uri=getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename;
+		      doOpen(uri);
+		    }
 
-		      var supercontext='';
-		      var topcontext='';
-		      //var contexttype='';
-		      //for all objects in result
-		      for (prop in res) {
-			  if (!res.hasOwnProperty(prop)) {
-			      //The current property is not a direct property of p
-			      continue;
-			  }
-
-			  supercontext=res[prop].printouts['Supercontext'][0].fulltext;
-			  console.log('super:'+supercontext);
-			  topcontext=res[prop].printouts['Topcontext'][0].fulltext;
-			  //contexttype=res[prop].printouts['Contexttype'][0].fulltext;
-		      }
-		      var cmd='Light_Context?Light_Context%5BSupercontext%5D='+supercontext+'&Light_Context%5BTopcontext%5D='+topcontext+'&Light_Context%5BContext+type%5D=Situation';
-		      var uri=startaddress+'index.php/Special:FormEdit/'+cmd;
-		      console.log(uri);
-		      var win = window.open(uri, '_blank');
-		      if(win){
-			  //Browser has allowed it to be opened
-			  win.focus();
-		      }else{
-			  //Broswer has blocked it
-			  alert('Error opening page');
-		      }
-		      
-		    });
 		  }
 
    var queries=veExtenderQueries();
      createDialog('addresourcedialog',queries.resourcehyperlinks,OO.ui.deferMsg( 'visualeditor-emm-addresourcelabel' )(),
 		  processResult,'Toevoegen pagina','Manage Pages', 'Existing page:');
      createDialog('addhyperlinkdialog',queries.resourcehyperlinks,'Add hyperlink',
-		  function (){
-         var totaladdress=window.location.href;
-	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
-	  var pagename=mw.config.get( 'wgPageName' )
-	  var win = window.open(startaddress+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pagename, '_blank');
-	  if(win){
-	      //Browser has allowed it to be opened
-	      win.focus();
-	  }else{
-	      //Broswer has blocked it
-	      alert('Please allow popups for this site');
-	  }
-		  },'Toevoegen hyperlink','Manage Hyperlinks', 'Existing hyperlink:');
+	function (){
+	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
+	}
+      ,'Toevoegen hyperlink','Manage Hyperlinks', 'Existing hyperlink:');
+     createDialog('addlocallinkdialog',queries.resourceuploadables,'Add local resource',
+	function (){
+	  //todo: nakijken wat de form is die hier gebruikt moet worden.
+	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
+	}
+      ,'Toevoegen local resource','Manage local resource', 'Existing local resource:');
 }
 
+/*
+ * create dialog to add or edit resource
+ */
 function createDialog(dialogName,askQuery, actionName, processResult,actionTitle,dialogTitle, labelTitle){
 /* Static Properties */
 ve.ui.EditOrInsertDialog = function( manager, config ) {
@@ -165,10 +180,8 @@ ve.ui.EditOrInsertDialog.static.name = dialogName;
 ve.ui.EditOrInsertDialog.static.title = dialogTitle;
 ve.ui.EditOrInsertDialog.static.size = 'medium';
 function editPage(pageName){
-  console.log(pageName);
-         var totaladdress=window.location.href;
-	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
-	  var win = window.open(startaddress+'index.php/'+pageName+'&action=formedit​', '_blank');
+  //todo: characters are added to end of string; see why this happens!?
+	  doOpen(encodeURI(getStartAddress()+'index.php?title='+spacesToUnderscore(pageName)+'&action=formedit​'));
 
 }
 var pagenames=[];
@@ -177,7 +190,7 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
   
   var api = new mw.Api();
   // Start a "GET" request
-  console.log('Query:'+askQuery+'|?Semantic title');
+  //console.log('Query:'+askQuery+'|?Semantic title');
   api.get( {
       action: 'ask',
       parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
@@ -185,7 +198,7 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
       //test-query:[[Category:Context]]|?Modification date|?Heading nl
       query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
   } ).done( function ( data ) {
-    console.log(data);
+    //console.log(data);
     //parse data
     //first get results within data
       var res=data.query.results;
@@ -211,7 +224,7 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
       }
 
       pagenames=arr;
-      console.log('search id:'+"#"+dialogName+"id");
+      //console.log('search id:'+"#"+dialogName+"id");
       var complete=$( "#"+dialogName+"id" ).find("input");
     //store data in inputfields 
       $(complete).autocomplete({
@@ -224,7 +237,7 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
 	  appendTo: complete.parentElement
 	});
   });
-  return 400;
+  return 500;
 }
 ve.ui.EditOrInsertDialog.prototype.initialize = function () {
 	ve.ui.EditOrInsertDialog.super.prototype.initialize.call( this );
@@ -279,7 +292,7 @@ ve.ui.EditOrInsertDialog.prototype.initialize = function () {
 		return dialogue.super.prototype.getActionProcess.call(this, action);
 	    }
 	};
-ve.ui.windowFactory.register( ve.ui.EditOrInsertDialog );
+      ve.ui.windowFactory.register( ve.ui.EditOrInsertDialog );
 }
  
  
