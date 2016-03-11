@@ -1,9 +1,10 @@
 function defineTranslations(){
 	var translations = {
 		en: {
-		  'visualeditor-emm-menuaddpagetitle':"Add Page",
-		  'visualeditor-emm-menuaddhyperlinktitle':"Add External Resource",
-		  'visualeditor-emm-menuaddinternaldocumenttitle':"Add Internal Resource",
+		  'visualeditor-emm-menuaddpagetitle':"Page",
+		  'visualeditor-emm-menuaddhyperlinktitle':"Hyperlink",
+		  'visualeditor-emm-menuaddinternaldocumenttitle':"Resource",
+		  'visualeditor-emm-menuresourcemenuname':"Resources",
 		  'visualeditor-emm-menuinternallinktitle':"Link (page)",
 		  'visualeditor-emm-menuexternallinktitle':"Link (website)",
 		  'visualeditor-emm-menucitetitle':"Link (reference)",
@@ -16,9 +17,10 @@ function defineTranslations(){
 		  'visualeditor-emm-link-to-resource' :"Link:"
 		},
 		nl: {
-		  'visualeditor-emm-menuaddpagetitle':"Add Page",
-		  'visualeditor-emm-menuaddhyperlinktitle':"Add External Resource",
-		  'visualeditor-emm-menuaddinternaldocumenttitle':"Add Internal Resource",
+		  'visualeditor-emm-menuaddpagetitle':"Pagina",
+		  'visualeditor-emm-menuaddhyperlinktitle':"Hyperlink",
+		  'visualeditor-emm-menuaddinternaldocumenttitle':"Resource",
+		  'visualeditor-emm-menuresourcemenuname':"Bronnen",
 		  'visualeditor-emm-menuinternallinktitle':"Link (pagina)",
 		  'visualeditor-emm-menuexternallinktitle':"Link (website)",
 		  'visualeditor-emm-menucitetitle':"Link (referentie)",
