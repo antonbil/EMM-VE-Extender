@@ -34,9 +34,9 @@
 //get pagenames for pages with askQuery, with Semantic title as a property
 var pagenames = [];
 
- 
 
-    
+
+
 
     var makeInsertTool = function(buttonMessage, dialogueMessage, collection, element, templateName, nameLabel, resourceLabel,
 				  copySelectedTextToNameField,saveVariablesInInstance
@@ -58,7 +58,7 @@ var pagenames = [];
 	dialogue.static.actions = [
 	    { action: 'save', label: 'Insert', flags: [ 'primary', 'progressive' ] },
 	    { action: 'cancel', label: 'Cancel', flags: 'safe' }
-	];	
+	];
 
 
         dialogue.prototype.onDocumentTransact = function () {
@@ -96,11 +96,11 @@ var pagenames = [];
 //get selected text, and set default text of first field to that selected text
 //do this within getBodyHeight because it is executed before the dialog becomes visible
 dialogue.prototype.getBodyHeight = function () {
-  
+
   //first get data for input-fields. Get query-data, and add selected data
   //save instance
   var dialogthat=this;
-  
+
   var api = new mw.Api();
   // Start a "GET" request
   api.get( {
@@ -135,7 +135,7 @@ dialogue.prototype.getBodyHeight = function () {
       }
 
       pagenames=arr;
-    //store data in inputfields 
+    //store data in inputfields
     copySelectedTextToNameField(dialogthat);
   });
 
@@ -161,7 +161,7 @@ dialogue.prototype.getBodyHeight = function () {
 			  alert('Please select an existing item!');
 			  return;
 			}
-		    
+
 
 			var mytemplate=  [
 			    {
@@ -183,7 +183,7 @@ dialogue.prototype.getBodyHeight = function () {
 			    }
 			  ]
 			;
-			 
+
 
 			//insert result in text
 			 var surfaceModel = ve.init.target.getSurface().getModel();
@@ -208,7 +208,7 @@ dialogue.prototype.getBodyHeight = function () {
 			label: nameLabel//todo :make it: Tekst in pagina
 		    }
 		),
-		
+
 		resourceControl = new OO.ui.InputWidget({
 		    value: ""
 		}),
@@ -233,7 +233,7 @@ dialogue.prototype.getBodyHeight = function () {
 				});
 		  control.$input.attr("type", type);
 		  control.$input.css("width", "100%");
-		  return {		
+		  return {
 		    control:control,
 		    label : new OO.ui.FieldLayout(
 			control,
@@ -273,7 +273,7 @@ dialogue.prototype.getBodyHeight = function () {
 
 	    OO.ui.ProcessDialog.prototype.initialize.call(this);
 
-	    
+
 
 	    saveVariablesInInstance(this,nameControl,name,resource);
 
@@ -288,10 +288,11 @@ dialogue.prototype.getBodyHeight = function () {
 	    nameControl.$input.attr("type", "text");
 
 	    resourceControl.$input.attr("type", "text");
-	    
+
 	    nameControl.$input.css("width", "100%");
 	    resourceControl.$input.css("width", "100%");
 
+	    $(":text").css({ 'width':'300px'}); //TODO schalen naar breedte dialoog (?), voor nu even hard-coded
 	};
 
 	ve.ui.windowFactory.register(dialogue);
@@ -316,12 +317,12 @@ dialogue.prototype.getBodyHeight = function () {
 	tool.prototype.onSelect = function () {
 	    this.toolbar.getSurface().execute('window', 'open', dialogueName, null);
 	    this.setActive( false );
-	};    
+	};
 
 	ve.ui.toolFactory.register(tool);
-      
+
     };
-    
+
 
     var copySelectedTextToNameField=function(that){
       //get selected text from SurfaceModel
@@ -330,7 +331,7 @@ dialogue.prototype.getBodyHeight = function () {
       console.log(surfaceModel);
       //todo: check if selection.range.start exists, otherwise selection empty
       if (surfaceModel.getFragment().selection.range)
-	for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){ 
+	for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){
 	  var element=surfaceModel.getFragment().document.data.data[i];
 	  var toAdd=element;
 	  if (element === Array)
@@ -356,7 +357,7 @@ dialogue.prototype.getBodyHeight = function () {
 	  appendTo: that.resourceField.parentElement
 	});
     }
-    
+
     var saveVariablesInInstance=function(that,nameControl,name,resource){
       //at bottom of initialize function
 
