@@ -14,7 +14,8 @@ function addEMMResources(){
      AddPageTool.prototype.onSelect = function () {
          //alert( 'AddPage tool clicked!' );
        console.log(ve.ui);
-       ve.init.target.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
+       //ve.init.target.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
+       processResult();
          this.setActive( false );
      };
      toolFactory.register( AddPageTool );
@@ -27,6 +28,7 @@ function addEMMResources(){
      AddHyperlinkTool.static.icon = 'source';
      AddHyperlinkTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddhyperlinktitle' )();
      AddHyperlinkTool.prototype.onSelect = function () {
+       //ve.init.target.getSurface().execute( 'window', 'open', 'addhyperlinkdialog', null );
          var totaladdress=window.location.href;
 	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
 	  var pagename=mw.config.get( 'wgPageName' )
@@ -83,41 +85,94 @@ function addEMMResources(){
      //console.log(toolbar);
      $( '.ve-test-toolbar-insert' ).after(
          toolbar.$group);
+     
+     		  function processResult(){
+		    console.log('save!');
+		    var api = new mw.Api();
+		    var totaladdress=window.location.href;
+		    var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
+		    var pagename=mw.config.get( 'wgPageName' );
+
+		    api.get( {
+			action: 'ask',
+			parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
+			query: '[['+pagename+']]|?Supercontext|?Topcontext'//get all pages; include property Semantic title
+		    } ).done( function ( data ) {
+		      var res=data.query.results;
+		      console.log(res);
+
+		      var supercontext='';
+		      var topcontext='';
+		      //var contexttype='';
+		      //for all objects in result
+		      for (prop in res) {
+			  if (!res.hasOwnProperty(prop)) {
+			      //The current property is not a direct property of p
+			      continue;
+			  }
+
+			  supercontext=res[prop].printouts['Supercontext'][0].fulltext;
+			  console.log('super:'+supercontext);
+			  topcontext=res[prop].printouts['Topcontext'][0].fulltext;
+			  //contexttype=res[prop].printouts['Contexttype'][0].fulltext;
+		      }
+		      var cmd='Light_Context?Light_Context%5BSupercontext%5D='+supercontext+'&Light_Context%5BTopcontext%5D='+topcontext+'&Light_Context%5BContext+type%5D=Situation';
+		      var uri=startaddress+'index.php/Special:FormEdit/'+cmd;
+		      console.log(uri);
+		      var win = window.open(uri, '_blank');
+		      if(win){
+			  //Browser has allowed it to be opened
+			  win.focus();
+		      }else{
+			  //Broswer has blocked it
+			  alert('Error opening page');
+		      }
+		      
+		    });
+		  }
+
    var queries=veExtenderQueries();
-     createDialog('addresourcedialog',queries.resourcehyperlinks,OO.ui.deferMsg( 'visualeditor-emm-addresourcelabel' )());
+     createDialog('addresourcedialog',queries.resourcehyperlinks,OO.ui.deferMsg( 'visualeditor-emm-addresourcelabel' )(),
+		  processResult,'Toevoegen pagina','Manage Pages', 'Existing page:');
+     createDialog('addhyperlinkdialog',queries.resourcehyperlinks,'Add hyperlink',
+		  function (){
+         var totaladdress=window.location.href;
+	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
+	  var pagename=mw.config.get( 'wgPageName' )
+	  var win = window.open(startaddress+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pagename, '_blank');
+	  if(win){
+	      //Browser has allowed it to be opened
+	      win.focus();
+	  }else{
+	      //Broswer has blocked it
+	      alert('Please allow popups for this site');
+	  }
+		  },'Toevoegen hyperlink','Manage Hyperlinks', 'Existing hyperlink:');
 }
 
-function createDialog(dialogName,askQuery, actionName){
+function createDialog(dialogName,askQuery, actionName, processResult,actionTitle,dialogTitle, labelTitle){
 /* Static Properties */
-ve.ui.SearchAndReplaceDialog = function( manager, config ) {
+ve.ui.EditOrInsertDialog = function( manager, config ) {
 	// Parent constructor
-	ve.ui.SearchAndReplaceDialog.super.call( this, manager, config );
+	ve.ui.EditOrInsertDialog.super.call( this, manager, config );
 
 };
 /* Inheritance */
 
-OO.inheritClass( ve.ui.SearchAndReplaceDialog, ve.ui.FragmentDialog );
+OO.inheritClass( ve.ui.EditOrInsertDialog, ve.ui.FragmentDialog );
 
-ve.ui.SearchAndReplaceDialog.static.name = dialogName;
-ve.ui.SearchAndReplaceDialog.static.title = 'Add Resource';
-ve.ui.SearchAndReplaceDialog.static.size = 'medium';
+ve.ui.EditOrInsertDialog.static.name = dialogName;
+ve.ui.EditOrInsertDialog.static.title = dialogTitle;
+ve.ui.EditOrInsertDialog.static.size = 'medium';
 function editPage(pageName){
   console.log(pageName);
          var totaladdress=window.location.href;
 	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
-	  var win = window.open(startaddress+'index.php?title='+pageName+'&action=formedit​', '_blank');
+	  var win = window.open(startaddress+'index.php/'+pageName+'&action=formedit​', '_blank');
 
-  /*  var api = new mw.Api();
-
-  api.get( {
-      action: 'ask',
-      parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
-      query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
-  } ).done( function ( data ) {
-  }*/
 }
 var pagenames=[];
-ve.ui.SearchAndReplaceDialog.prototype.getBodyHeight = function () {
+ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
   var dialogthat=this;
   
   var api = new mw.Api();
@@ -164,14 +219,15 @@ ve.ui.SearchAndReplaceDialog.prototype.getBodyHeight = function () {
 	  onSelect: function (suggestion) {
 	    editPage(suggestion.data);
 	    //that.pageid=suggestion.data;
+		    dialogthat.close();
 	  },
 	  appendTo: complete.parentElement
 	});
   });
   return 400;
 }
-ve.ui.SearchAndReplaceDialog.prototype.initialize = function () {
-	ve.ui.SearchAndReplaceDialog.super.prototype.initialize.call( this );
+ve.ui.EditOrInsertDialog.prototype.initialize = function () {
+	ve.ui.EditOrInsertDialog.super.prototype.initialize.call( this );
 	this.panel = new OO.ui.PanelLayout( { '$': this.$, 'scrollable': true, 'padded': true } );
 	this.inputsFieldset = new OO.ui.FieldsetLayout( {
 		'$': this.$
@@ -184,17 +240,17 @@ ve.ui.SearchAndReplaceDialog.prototype.initialize = function () {
 	this.subject.$element.attr("id",dialogName+"id");
 	this.subjectField = new OO.ui.FieldLayout( this.subject, {
 		'$': this.$,
-		'label': 'Subject'
+		'label': labelTitle
 	} );
-	ve.ui.SearchAndReplaceDialog.static.actions = [
+	ve.ui.EditOrInsertDialog.static.actions = [
 
-	{ action: 'save', label: 'Insert', flags: [ /*'primary',*/ 'progressive' ] },
+	{ action: 'save', label: actionTitle, flags: [ /*'primary',*/ 'progressive' ] },
 	{
 		'label': OO.ui.deferMsg( 'visualeditor-dialog-action-cancel' ),
 		'flags': 'safe',
 		'modes': [ 'edit', 'insert', 'select' ]
 	}
-];
+	];
 	this.inputsFieldset.$element.append(
 		
 		this.subjectField.$element
@@ -203,7 +259,27 @@ ve.ui.SearchAndReplaceDialog.prototype.initialize = function () {
 	this.$body.append( this.panel.$element );
 
   }
-ve.ui.windowFactory.register( ve.ui.SearchAndReplaceDialog );
+	ve.ui.EditOrInsertDialog.prototype.getActionProcess = function ( action ) {
+	    var that = this;
+
+
+	    switch (action) {
+	    case "cancel":
+		return new OO.ui.Process(function() {
+		    that.close();
+		});
+
+	    case "save":
+		return new OO.ui.Process(function() {
+		    that.close();
+		  processResult();
+		});
+
+	    default:
+		return dialogue.super.prototype.getActionProcess.call(this, action);
+	    }
+	};
+ve.ui.windowFactory.register( ve.ui.EditOrInsertDialog );
 }
  
  
