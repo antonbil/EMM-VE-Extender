@@ -14,7 +14,7 @@ function addEMMResources(){
      AddPageTool.prototype.onSelect = function () {
          //alert( 'AddPage tool clicked!' );
        console.log(ve.ui);
-       //ve.ui.Toolbar.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
+       ve.init.target.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
          this.setActive( false );
      };
      toolFactory.register( AddPageTool );
@@ -72,7 +72,7 @@ function addEMMResources(){
              // 'list' tool groups display both the titles and icons, in a dropdown list.
              type: 'list',
              indicator: 'down',
-             label: 'Resources',
+             label: OO.ui.deferMsg( 'visualeditor-emm-menuresourcemenuname' )(),
              include: [ 'addpage', 'addhyperlink', 'addinternaldocument']
          }
          // Note how the tools themselves are toolgroup-agnostic - the same tool can be displayed

@@ -2,21 +2,21 @@
    var queries=veExtenderQueries();
    console.log(queries);
   loadEMMDialog('Internal link',"1",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
-    queries.internalLinks,function(namedata,linkdata){return {
+    queries.linkpages,function(namedata,linkdata){return {
 					  link: { wt: linkdata },
 					  name: { wt: namedata },
 					}
     }, []
   );
   loadEMMDialog('External link',"2",'visualeditor-emm-menuexternallinktitle','visualeditor-emm-dialogexternallinktitle','visualeditor-emm-link-to-resource',
-    queries.externalLinks,function(namedata,linkdata){return {
+    queries.linkwebsites,function(namedata,linkdata){return {
 					  resource: { wt: linkdata },
 					  name: { wt: namedata },
 					}
     }, []
   );
   loadEMMDialog('Cite',"3",'visualeditor-emm-menucitetitle','visualeditor-emm-dialogcitetitle','visualeditor-emm-link-to-resource',
-    queries.documents,function(namedata,linkdata, data){
+    queries.linkreferences,function(namedata,linkdata, data){
                                         console.log(data);
 					var optionaldata=data.optional.wt;
 					return {
