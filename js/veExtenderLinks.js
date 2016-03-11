@@ -1,20 +1,22 @@
  function addEMMLinks(){
+   var queries=veExtenderQueries();
+   console.log(queries);
   loadEMMDialog('Internal link',"1",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
-    '[[Category:Light Context]]',function(namedata,linkdata){return {
+    queries.internalLinks,function(namedata,linkdata){return {
 					  link: { wt: linkdata },
 					  name: { wt: namedata },
 					}
     }, []
   );
   loadEMMDialog('External link',"2",'visualeditor-emm-menuexternallinktitle','visualeditor-emm-dialogexternallinktitle','visualeditor-emm-link-to-resource',
-    '[[Category:Resource Description]] [[Hyperlink::+]]',function(namedata,linkdata){return {
+    queries.externalLinks,function(namedata,linkdata){return {
 					  resource: { wt: linkdata },
 					  name: { wt: namedata },
 					}
     }, []
   );
   loadEMMDialog('Cite',"3",'visualeditor-emm-menucitetitle','visualeditor-emm-dialogcitetitle','visualeditor-emm-link-to-resource',
-    '[[Category:Resource Description]] [[:+]] OR [[Category:Resource Description]] [[File:+]] [[Pagename::~*.pdf||~*.doc||~*.docx||~*.ppt||~*.pptx||~*.odt||~*.odc||~*.odp||~*.odg||~*.txt]]',function(namedata,linkdata, data){
+    queries.documents,function(namedata,linkdata, data){
                                         console.log(data);
 					var optionaldata=data.optional.wt;
 					return {
