@@ -70,7 +70,7 @@ function addEMMResources(){
      getContextOfCurrentPage();
      //get context of current page
 
-     // Register two more tools, nothing interesting here
+     // Register tools
      function AddPageTool() {
          AddPageTool.parent.apply( this, arguments );
      }
@@ -158,7 +158,7 @@ function addEMMResources(){
      createDialog('addlocallinkdialog',queries.resourceuploadables,'Add local resource',
 	function (){
 	  //todo: nakijken wat de form is die hier gebruikt moet worden.
-	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
+	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
 	}
       ,'Toevoegen local resource','Manage local resource', 'Existing local resource:');
 }
