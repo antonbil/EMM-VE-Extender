@@ -53,7 +53,7 @@ function addEMMResources(){
          var totaladdress=window.location.href;
 	  var startaddress= totaladdress.substr(0, totaladdress.indexOf('index.php')); 
 	  var pagename=mw.config.get( 'wgPageName' )
-	  var win = window.open(startaddress+'index.php/Speciaal:GegevensBewerken/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pagename, '_blank');
+	  var win = window.open(startaddress+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pagename, '_blank');
 	  if(win){
 	      //Browser has allowed it to be opened
 	      win.focus();
