@@ -70,7 +70,7 @@ function addEMMResources(){
      getContextOfCurrentPage();
      //get context of current page
 
-     // Register two more tools, nothing interesting here
+     // Register tools
      function AddPageTool() {
          AddPageTool.parent.apply( this, arguments );
      }
@@ -138,7 +138,7 @@ function addEMMResources(){
 		    if (pageProperties.supercontext.length==0 || pageProperties.topcontext.length==0 ){
 		      alert('Sorry, cannot create the page. Properties needed in page are lacking.');
 		    } else {
-		      var cmd='Light_Context?Light_Context%5BSupercontext%5D='+pageProperties.supercontext+'&Light_Context%5BTopcontext%5D='+pageProperties.topcontext+'&Light_Context%5BContext+type%5D=Situation';
+		      var cmd='Light_Context?Light_Context%5BSupercontext%5D='+pageProperties.pagename+'&Light_Context%5BTopcontext%5D='+pageProperties.topcontext+'&Light_Context%5BContext+type%5D=Situation';
 		      var uri=getStartAddress()+'index.php/Special:FormEdit/'+cmd;
 		      //var uri=getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename;
 		      doOpen(uri);
@@ -147,7 +147,8 @@ function addEMMResources(){
 		  }
 
    var queries=veExtenderQueries();
-     createDialog('addresourcedialog',queries.resourcehyperlinks,OO.ui.deferMsg( 'visualeditor-emm-addresourcelabel' )(),
+   //todo: use queries.resourcepages
+     createDialog('addresourcedialog',queries.resourcepages,'Add Resource',
 		  processResult,'Toevoegen pagina','Manage Pages', 'Existing page:');
      createDialog('addhyperlinkdialog',queries.resourcehyperlinks,'Add hyperlink',
 	function (){
@@ -157,7 +158,7 @@ function addEMMResources(){
      createDialog('addlocallinkdialog',queries.resourceuploadables,'Add local resource',
 	function (){
 	  //todo: nakijken wat de form is die hier gebruikt moet worden.
-	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
+	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
 	}
       ,'Toevoegen local resource','Manage local resource', 'Existing local resource:');
 }
@@ -167,25 +168,25 @@ function addEMMResources(){
  */
 function createDialog(dialogName,askQuery, actionName, processResult,actionTitle,dialogTitle, labelTitle){
 /* Static Properties */
-ve.ui.EditOrInsertDialog = function( manager, config ) {
+//was: ve.ui.EditOrInsertDialog
+var addOrEditResourceDialog = function( manager, config ) {
 	// Parent constructor
-	ve.ui.EditOrInsertDialog.super.call( this, manager, config );
+	addOrEditResourceDialog.super.call( this, manager, config );
 
 };
 /* Inheritance */
 
-OO.inheritClass( ve.ui.EditOrInsertDialog, ve.ui.FragmentDialog );
+OO.inheritClass( addOrEditResourceDialog, ve.ui.FragmentDialog );
 
-ve.ui.EditOrInsertDialog.static.name = dialogName;
-ve.ui.EditOrInsertDialog.static.title = dialogTitle;
-ve.ui.EditOrInsertDialog.static.size = 'medium';
+addOrEditResourceDialog.static.name = dialogName;
+addOrEditResourceDialog.static.title = dialogTitle;
+addOrEditResourceDialog.static.size = 'medium';
 function editPage(pageName){
   //todo: characters are added to end of string; see why this happens!?
 	  doOpen(encodeURI(getStartAddress()+'index.php?title='+spacesToUnderscore(pageName)+'&action=formedit​'));
 
 }
-var pagenames=[];
-ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
+addOrEditResourceDialog.prototype.getBodyHeight = function () {
   var dialogthat=this;
   
   var api = new mw.Api();
@@ -193,9 +194,7 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
   //console.log('Query:'+askQuery+'|?Semantic title');
   api.get( {
       action: 'ask',
-      parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
-      //query was: [[Modification date::+]]|?Modification date|?Heading nl
-      //test-query:[[Category:Context]]|?Modification date|?Heading nl
+      parameters:'limit:10000',//todo:check how to increase limit of ask-result; done in LocalSettings.php
       query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
   } ).done( function ( data ) {
     //console.log(data);
@@ -205,7 +204,7 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
       //console.log(res);
 
       //array to store results
-      var arr=[];
+       var pagenames=[];
       //for all objects in result
       for (prop in res) {
 	  if (!res.hasOwnProperty(prop)) {
@@ -218,13 +217,11 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
 	  var semantictitle=res[prop].printouts['Semantic title'][0];
 	  var title='';
 	  if (semantictitle)
-	    arr.push({ value: semantictitle, data: pagename });
+	    pagenames.push({ value: semantictitle, data: pagename });
 	  else
-	    arr.push({ value: pagename, data: pagename });
+	    pagenames.push({ value: pagename, data: pagename });
       }
 
-      pagenames=arr;
-      //console.log('search id:'+"#"+dialogName+"id");
       var complete=$( "#"+dialogName+"id" ).find("input");
     //store data in inputfields 
       $(complete).autocomplete({
@@ -232,15 +229,16 @@ ve.ui.EditOrInsertDialog.prototype.getBodyHeight = function () {
 	  onSelect: function (suggestion) {
 	    editPage(suggestion.data);
 	    //that.pageid=suggestion.data;
-		    dialogthat.close();
+	    dialogthat.close();
+	    dialogthat.subject.setValue("");
 	  },
 	  appendTo: complete.parentElement
 	});
   });
-  return 500;
+  return 400;
 }
-ve.ui.EditOrInsertDialog.prototype.initialize = function () {
-	ve.ui.EditOrInsertDialog.super.prototype.initialize.call( this );
+addOrEditResourceDialog.prototype.initialize = function () {
+	addOrEditResourceDialog.super.prototype.initialize.call( this );
 	this.panel = new OO.ui.PanelLayout( { '$': this.$, 'scrollable': true, 'padded': true } );
 	this.inputsFieldset = new OO.ui.FieldsetLayout( {
 		'$': this.$
@@ -255,7 +253,7 @@ ve.ui.EditOrInsertDialog.prototype.initialize = function () {
 		'$': this.$,
 		'label': labelTitle
 	} );
-	ve.ui.EditOrInsertDialog.static.actions = [
+	addOrEditResourceDialog.static.actions = [
 
 	{ action: 'save', label: actionTitle, flags: [ /*'primary',*/ 'progressive' ] },
 	{
@@ -272,27 +270,28 @@ ve.ui.EditOrInsertDialog.prototype.initialize = function () {
 	this.$body.append( this.panel.$element );
 
   }
-	ve.ui.EditOrInsertDialog.prototype.getActionProcess = function ( action ) {
+	addOrEditResourceDialog.prototype.getActionProcess = function ( action ) {
 	    var that = this;
 
 
 	    switch (action) {
 	    case "cancel":
 		return new OO.ui.Process(function() {
+		  console.log("cancel");
 		    that.close();
 		});
 
 	    case "save":
 		return new OO.ui.Process(function() {
-		    that.close();
 		  processResult();
+		    that.close();
 		});
 
 	    default:
-		return dialogue.super.prototype.getActionProcess.call(this, action);
+		return addOrEditResourceDialog.super.prototype.getActionProcess.call(this, action);
 	    }
 	};
-      ve.ui.windowFactory.register( ve.ui.EditOrInsertDialog );
+      ve.ui.windowFactory.register( addOrEditResourceDialog );
 }
  
  
