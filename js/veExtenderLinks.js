@@ -56,8 +56,8 @@ var pagenames = [];
 	dialogue.static.name = dialogueName;
 	dialogue.static.title = dialogueMessage;
 	dialogue.static.actions = [
-	    { action: 'save', label: 'Insert', flags: [ 'primary', 'progressive' ] },
-	    { action: 'cancel', label: 'Cancel', flags: 'safe' }
+	    { action: 'save', label: OO.ui.deferMsg( 'visualeditor-dialog-action-insert')(), flags: [ 'primary', 'progressive' ] },
+	    { action: 'cancel', label: OO.ui.deferMsg( 'visualeditor-dialog-action-cancel' )(), flags: 'safe' }
 	];
 
 
@@ -158,7 +158,7 @@ dialogue.prototype.getBodyHeight = function () {
 			var linkdata=this.pageid.length>0?this.pageid:"";
 			var namedata=nameControl.getValue();
 			if (linkdata.length==0 ){
-			  alert('Please select an existing item!');
+			  alert(OO.ui.deferMsg( 'visualeditor-emm-select-existing-item' )()+'!');
 			  return;
 			}
 
@@ -210,6 +210,7 @@ dialogue.prototype.getBodyHeight = function () {
 		),
 
 		resourceControl = new OO.ui.InputWidget({
+			'placeholder': OO.ui.deferMsg( 'visualeditor-emm-search' )(),//todo: does not work; in resources.js is a working example!
 		    value: ""
 		}),
 		resource = new OO.ui.FieldLayout(

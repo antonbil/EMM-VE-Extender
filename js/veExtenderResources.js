@@ -79,8 +79,8 @@ function addEMMResources(){
      AddPageTool.static.icon = 'source';
      AddPageTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddpagetitle' )();
      AddPageTool.prototype.onSelect = function () {
-       //ve.init.target.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
-       processResult();
+       ve.init.target.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
+       //processResult();
 
 
          this.setActive( false );
@@ -95,10 +95,10 @@ function addEMMResources(){
      AddHyperlinkTool.static.icon = 'source';
      AddHyperlinkTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddhyperlinktitle' )();
      AddHyperlinkTool.prototype.onSelect = function () {
-       //ve.init.target.getSurface().execute( 'window', 'open', 'addhyperlinkdialog', null );//addlocallinkdialog
+       ve.init.target.getSurface().execute( 'window', 'open', 'addhyperlinkdialog', null );//addlocallinkdialog
 
-	  var address=getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename;
-	  doOpen(address);
+	  /*var address=getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename;
+	  doOpen(address);*/
          this.setActive( false );
      };
      toolFactory.register( AddHyperlinkTool );
@@ -111,8 +111,8 @@ function addEMMResources(){
      AddInternalDocumentTool.static.icon = 'source';
      AddInternalDocumentTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddinternaldocumenttitle' )();
      AddInternalDocumentTool.prototype.onSelect = function () {
-	 doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
-       //ve.init.target.getSurface().execute( 'window', 'open', 'addlocallinkdialog', null );//
+	 //doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
+       ve.init.target.getSurface().execute( 'window', 'open', 'addlocallinkdialog', null );//
          this.setActive( false );
      };
      toolFactory.register( AddInternalDocumentTool );
@@ -136,7 +136,7 @@ function addEMMResources(){
 		    //console.log('save!');
 
 		    if (pageProperties.supercontext.length==0 || pageProperties.topcontext.length==0 ){
-		      alert('Sorry, cannot create the page. Properties needed in page are lacking.');
+		      alert(OO.ui.deferMsg( 'visualeditor-emm-cannot-create-page' )());
 		    } else {
 		      var cmd='Light_Context?Light_Context%5BSupercontext%5D='+pageProperties.pagename+'&Light_Context%5BTopcontext%5D='+pageProperties.topcontext+'&Light_Context%5BContext+type%5D=Situation';
 		      var uri=getStartAddress()+'index.php/Special:FormEdit/'+cmd;
@@ -148,19 +148,26 @@ function addEMMResources(){
 
    var queries=veExtenderQueries();
    //todo: use queries.resourcepages
-     createDialog('addresourcedialog',queries.resourcepages,'Add Resource',
-		  processResult,'Toevoegen pagina','Manage Pages', 'Existing page:');
-     createDialog('addhyperlinkdialog',queries.resourcehyperlinks,'Add hyperlink',
+     createDialog('addresourcedialog',queries.resourcepages,OO.ui.deferMsg( 'visualeditor-emm-add-page' )(),
+		  processResult,OO.ui.deferMsg( 'visualeditor-emm-add-page' )(),
+		  OO.ui.deferMsg( 'visualeditor-emm-manage-pages' )(), 
+		  OO.ui.deferMsg( 'visualeditor-emm-existing-page' )()+':');
+     createDialog('addhyperlinkdialog',queries.resourcehyperlinks,OO.ui.deferMsg( 'visualeditor-emm-add-hyperlink' )(),
 	function (){
 	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
 	}
-      ,'Toevoegen hyperlink','Manage Hyperlinks', 'Existing hyperlink:');
-     createDialog('addlocallinkdialog',queries.resourceuploadables,'Add local resource',
+      ,OO.ui.deferMsg( 'visualeditor-emm-add-hyperlink' )(),
+      OO.ui.deferMsg( 'visualeditor-emm-manage-hyperlinks' )(), 
+		  OO.ui.deferMsg( 'visualeditor-emm-existing-hyperlink' )()+':');
+     createDialog('addlocallinkdialog',queries.resourceuploadables,
+     OO.ui.deferMsg( 'visualeditor-emm-add-file' )(),
 	function (){
 	  //todo: nakijken wat de form is die hier gebruikt moet worden.
 	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
 	}
-      ,'Toevoegen local resource','Manage local resource', 'Existing local resource:');
+      ,OO.ui.deferMsg( 'visualeditor-emm-add-file' )(),
+      OO.ui.deferMsg( 'visualeditor-emm-manage-files' )(), 
+		  OO.ui.deferMsg( 'visualeditor-emm-existing-file' )()+':');
 }
 
 /*
@@ -245,7 +252,7 @@ addOrEditResourceDialog.prototype.initialize = function () {
 	} );
 	// input from
 	this.subject = new OO.ui.TextInputWidget(
-		{ '$': this.$, 'multiline': false, 'placeholder': 'resource' }
+		{ '$': this.$, 'multiline': false, 'placeholder': OO.ui.deferMsg( 'visualeditor-emm-search' )() }
 	);
 	//add DOM-id to parent of input-field
 	this.subject.$element.attr("id",dialogName+"id");
