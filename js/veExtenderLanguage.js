@@ -12,7 +12,7 @@ function defineTranslations(){
 		  'visualeditor-emm-existing-hyperlink' :"Existing link",
 		  'visualeditor-emm-existing-page' :"Existing page",
 		  'visualeditor-emm-link-to-page' :"Link:",
-		  'visualeditor-emm-link-to-resource' :"Link:"
+		  'visualeditor-emm-link-to-resource' :"Link:",
 		  'visualeditor-emm-manage-files' :"Manage Files",
 		  'visualeditor-emm-manage-hyperlinks' :"Manage Links",
 		  'visualeditor-emm-manage-pages' :"Manage Pages",
@@ -26,7 +26,7 @@ function defineTranslations(){
 		  'visualeditor-emm-search' :"Search",
 		  'visualeditor-emm-select-existing-item' :"Please select an existing item",
 		  'visualeditor-emm-text-in-page':"Text:",
-		  'visualeditor-mwtemplate-cite-optional' :"Optional text:",
+		  'visualeditor-mwtemplate-cite-optional' :"Optional text:"
 		},
 		nl: {
 		  'visualeditor-emm-add-file' :"Toevoegen bestand",
@@ -40,7 +40,7 @@ function defineTranslations(){
 		  'visualeditor-emm-existing-hyperlink' :"Bestaande link",
 		  'visualeditor-emm-existing-page' :"Bestaande pagina",
 		  'visualeditor-emm-link-to-page' :"Link:",
-		  'visualeditor-emm-link-to-resource' :"Link:"
+		  'visualeditor-emm-link-to-resource' :"Link:",
 		  'visualeditor-emm-manage-files' :"Beheer bestanden",
 		  'visualeditor-emm-manage-hyperlinks' :"Beheer links",
 		  'visualeditor-emm-manage-pages' :"Beheer pagina's",
@@ -54,8 +54,7 @@ function defineTranslations(){
 		  'visualeditor-emm-search' :"Zoeken",
 		  'visualeditor-emm-select-existing-item' :"Kies een bestaande bron",
 		  'visualeditor-emm-text-in-page':"Tekst:",
-		  'visualeditor-mwtemplate-cite-optional' :"Optionele tekst:",
-
+		  'visualeditor-mwtemplate-cite-optional' :"Optionele tekst:"
 		}
 	};
     var userLanguage = mw.config.get( 'wgUserLanguage' );
