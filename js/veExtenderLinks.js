@@ -27,6 +27,7 @@
     }, [{label:"optional",defaultval:"",type:"text",description:OO.ui.deferMsg( 'visualeditor-mwtemplate-cite-optional' )}]
   );
 
+//ve.ui.toolFactory.bindings.register[6].context.forceExpand= [ 'media', 'insertTable' ,'linkpage' ,'linkwebsite' ,'linkreference'];
 
 }
   function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,askQuery,templateResult,myfields){
@@ -304,14 +305,16 @@ dialogue.prototype.getBodyHeight = function () {
 	var tool = function(toolGroup, config) {
 	    ve.ui.Tool.call(this, toolGroup, config);
 	    	this.setDisabled( false );
+		this.allowCollapse=null;
 		this.$element.addClass( 'oo-ui-tool-name-extratemplate' );
 	};
 
 	OO.inheritClass(tool, ve.ui.Tool);
-	tool.static.name = toolName,
+	tool.static.name = toolid,
 	tool.static.title = buttonMessage;
 	tool.static.group = 'tools';
 	tool.static.icon = 'link';
+	tool.static.allowCollapse=null;
 	tool.static.dialog = dialogueName;
 	//TODO unselect item if action done, following does not work....
 	tool.static.deactivateOnSelect = true;
