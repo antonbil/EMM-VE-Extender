@@ -311,7 +311,7 @@ dialogue.prototype.getBodyHeight = function () {
 	tool.static.name = toolName,
 	tool.static.title = buttonMessage;
 	tool.static.group = 'tools';
-	tool.static.icon = 'template';
+	tool.static.icon = 'link';
 	tool.static.dialog = dialogueName;
 	//TODO unselect item if action done, following does not work....
 	tool.static.deactivateOnSelect = true;
