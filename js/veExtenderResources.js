@@ -31,6 +31,7 @@ function getStartAddress(){
 var pageProperties={supercontext:"",topcontext:"",pagename:""};
 function getContextOfCurrentPage(){
 	pageProperties.pagename=mw.config.get( 'wgPageName' );
+	pageProperties.categories=mw.config.get( 'wgCategories' );//wgCategories
 
     var api = new mw.Api();
     api.get( {
@@ -134,8 +135,14 @@ function addEMMResources(){
      
      		  function processResult(){
 		    //console.log('save!');
+		    //check if page has Category Light Context
+		    var lightContext=false;
+		    for (var i=0;i<pageProperties.categories.length;i++){
+		      if (pageProperties.categories[i]=='Light Context')
+			lightContext=true;
+		    }
 
-		    if (pageProperties.supercontext.length==0 || pageProperties.topcontext.length==0 ){
+		    if (pageProperties.topcontext.length==0 || !lightContext){
 		      alert(OO.ui.deferMsg( 'visualeditor-emm-cannot-create-page' )());
 		    } else {
 		      var cmd='Light_Context?Light_Context%5BSupercontext%5D='+pageProperties.pagename+'&Light_Context%5BTopcontext%5D='+pageProperties.topcontext+'&Light_Context%5BContext+type%5D=Situation';

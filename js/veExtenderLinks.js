@@ -329,16 +329,15 @@ dialogue.prototype.getBodyHeight = function () {
       //get selected text from SurfaceModel
       var surfaceModel = ve.init.target.getSurface().getModel();
       selected="";
-      console.log(surfaceModel);
-      //todo: check if selection.range.start exists, otherwise selection empty
+      //console.log(surfaceModel);
       if (surfaceModel.getFragment().selection.range){
-	console.log(surfaceModel.getFragment().selection.range);
+	//console.log(surfaceModel.getFragment().selection.range);
 	for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){
 	  var element=surfaceModel.getFragment().document.data.data[i];
 	  var toAdd=element;
-	  if (element[0])
+	  if (element[0])//if element[0], then not plain text
 	    toAdd=element[0];//
-	  console.log(toAdd);
+	  //console.log(toAdd);
 	  selected+=toAdd;
 	}
       }
