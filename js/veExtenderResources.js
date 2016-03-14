@@ -77,7 +77,7 @@ function addEMMResources(){
      }
      OO.inheritClass( AddPageTool, OO.ui.Tool );
      AddPageTool.static.name = 'addpage';
-     AddPageTool.static.icon = 'source';
+     AddPageTool.static.icon = 'page-existing';
      AddPageTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddpagetitle' )();
      AddPageTool.prototype.onSelect = function () {
        ve.init.target.getSurface().execute( 'window', 'open', 'addresourcedialog', null );
@@ -93,7 +93,7 @@ function addEMMResources(){
      }
      OO.inheritClass( AddHyperlinkTool, OO.ui.Tool );
      AddHyperlinkTool.static.name = 'addhyperlink';
-     AddHyperlinkTool.static.icon = 'source';
+     AddHyperlinkTool.static.icon = 'link';
      AddHyperlinkTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddhyperlinktitle' )();
      AddHyperlinkTool.prototype.onSelect = function () {
        ve.init.target.getSurface().execute( 'window', 'open', 'addhyperlinkdialog', null );//addlocallinkdialog
@@ -109,7 +109,7 @@ function addEMMResources(){
      }
      OO.inheritClass( AddInternalDocumentTool, OO.ui.Tool );
      AddInternalDocumentTool.static.name = 'addinternaldocument';
-     AddInternalDocumentTool.static.icon = 'source';
+     AddInternalDocumentTool.static.icon = 'reference';
      AddInternalDocumentTool.static.title = OO.ui.deferMsg( 'visualeditor-emm-menuaddinternaldocumenttitle' )();
      AddInternalDocumentTool.prototype.onSelect = function () {
 	 //doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Light?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
