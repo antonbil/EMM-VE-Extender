@@ -1,21 +1,21 @@
  function addEMMLinks(){
    var queries=veExtenderQueries();
    console.log(queries);
-  loadEMMDialog('Internal link',"1",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
+  loadEMMDialog('Internal link',"linkpage",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
     queries.linkpages,function(namedata,linkdata){return {
 					  link: { wt: linkdata },
 					  name: { wt: namedata },
 					}
     }, []
   );
-  loadEMMDialog('External link',"2",'visualeditor-emm-menuexternallinktitle','visualeditor-emm-dialogexternallinktitle','visualeditor-emm-link-to-resource',
+  loadEMMDialog('External link',"linkwebsite",'visualeditor-emm-menuexternallinktitle','visualeditor-emm-dialogexternallinktitle','visualeditor-emm-link-to-resource',
     queries.linkwebsites,function(namedata,linkdata){return {
 					  resource: { wt: linkdata },
 					  name: { wt: namedata },
 					}
     }, []
   );
-  loadEMMDialog('Cite',"3",'visualeditor-emm-menucitetitle','visualeditor-emm-dialogcitetitle','visualeditor-emm-link-to-resource',
+  loadEMMDialog('Cite',"linkreference",'visualeditor-emm-menucitetitle','visualeditor-emm-dialogcitetitle','visualeditor-emm-link-to-resource',
     queries.linkreferences,function(namedata,linkdata, data){
                                         console.log(data);
 					var optionaldata=data.optional.wt;
@@ -379,7 +379,7 @@ dialogue.prototype.getBodyHeight = function () {
     makeInsertTool(
 	OO.ui.deferMsg( menutext )(),//title in menu
 	OO.ui.deferMsg( dialogtext )(),//Title on top of dialog
-	"process-models"+toolid,
+	"process-"+toolid,
 	"process-model",
 	template,//id of template to be generated
 	OO.ui.deferMsg( 'visualeditor-emm-text-in-page' )(),//nameLabel
