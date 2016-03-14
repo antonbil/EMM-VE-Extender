@@ -27,6 +27,7 @@ function defineTranslations(){
 		  'visualeditor-emm-search' :"Search",
 		  'visualeditor-mwtemplate-cite-optional' :"Optional text:",
 		  'visualeditor-emm-cannot-create-page' :"Sorry, cannot create the page. Properties needed in page are lacking.",
+		  'visualeditor-emm-select-existing-item' :"Please select an existing item",
 		  'visualeditor-emm-link-to-resource' :"Link:"
 		},
 		nl: {

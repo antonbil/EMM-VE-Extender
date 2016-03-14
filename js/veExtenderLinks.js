@@ -331,15 +331,17 @@ dialogue.prototype.getBodyHeight = function () {
       selected="";
       console.log(surfaceModel);
       //todo: check if selection.range.start exists, otherwise selection empty
-      if (surfaceModel.getFragment().selection.range)
+      if (surfaceModel.getFragment().selection.range){
+	console.log(surfaceModel.getFragment().selection.range);
 	for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){
 	  var element=surfaceModel.getFragment().document.data.data[i];
 	  var toAdd=element;
-	  if (element === Array)
+	  if (element[0])
 	    toAdd=element[0];//
 	  console.log(toAdd);
 	  selected+=toAdd;
 	}
+      }
       //set text to selected
       if (selected.length>0){
 	that.nameControl.setValue(selected);
