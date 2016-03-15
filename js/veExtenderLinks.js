@@ -206,12 +206,13 @@ dialogue.prototype.getBodyHeight = function () {
 		name = new OO.ui.FieldLayout(
 		    nameControl,
 		    {
-			label: nameLabel//todo :make it: Tekst in pagina
+			label: nameLabel,//todo :make it: Tekst in pagina
+			width: 300
 		    }
 		),
 
-		resourceControl = new OO.ui.InputWidget({
-			'placeholder': OO.ui.deferMsg( 'visualeditor-emm-search' )(),//todo: does not work; in resources.js is a working example!
+		resourceControl = new OO.ui.TextInputWidget({
+			'placeholder': OO.ui.deferMsg( 'visualeditor-emm-search' )(),
 		    value: ""
 		}),
 		resource = new OO.ui.FieldLayout(
@@ -275,6 +276,7 @@ dialogue.prototype.getBodyHeight = function () {
 
 	    OO.ui.ProcessDialog.prototype.initialize.call(this);
 
+	    //resourceControl.setIdealSize(150, 100 );
 
 
 	    saveVariablesInInstance(this,nameControl,name,resource);
