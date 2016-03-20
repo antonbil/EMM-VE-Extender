@@ -1,4 +1,4 @@
- function addEMMLinks(){
+function addEMMLinks(){
    var queries=veExtenderQueries();
    console.log(queries);
   loadEMMDialog('Internal link',"linkpage",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
@@ -26,6 +26,8 @@
 					}
     }, [{label:"optional",defaultval:"",type:"text",description:OO.ui.deferMsg( 'visualeditor-mwtemplate-cite-optional' )}]
   );
+
+//ve.ui.toolFactory.bindings.register[6].context.forceExpand= [ 'media', 'insertTable' ,'linkpage' ,'linkwebsite' ,'linkreference'];
 
 }
   function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,askQuery,templateResult,myfields){
@@ -204,7 +206,8 @@ dialogue.prototype.getBodyHeight = function () {
 		name = new OO.ui.FieldLayout(
 		    nameControl,
 		    {
-			label: nameLabel//todo :make it: Tekst in pagina
+			label: nameLabel,//todo :make it: Tekst in pagina
+			width: 300
 		    }
 		),
 
@@ -273,6 +276,7 @@ dialogue.prototype.getBodyHeight = function () {
 
 	    OO.ui.ProcessDialog.prototype.initialize.call(this);
 
+	    //resourceControl.setIdealSize(150, 100 );
 
 
 	    saveVariablesInInstance(this,nameControl,name,resource);
@@ -308,7 +312,7 @@ dialogue.prototype.getBodyHeight = function () {
 	};
 
 	OO.inheritClass(tool, ve.ui.Tool);
-	tool.static.name = toolName,
+	tool.static.name = toolid,
 	tool.static.title = buttonMessage;
 	tool.static.group = 'tools';
 	tool.static.icon = 'link';
