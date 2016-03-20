@@ -207,7 +207,6 @@ dialogue.prototype.getBodyHeight = function () {
 		    nameControl,
 		    {
 			label: nameLabel,//todo :make it: Tekst in pagina
-			width: 300
 		    }
 		),
 
@@ -275,9 +274,6 @@ dialogue.prototype.getBodyHeight = function () {
 		});
 
 	    OO.ui.ProcessDialog.prototype.initialize.call(this);
-
-	    //resourceControl.setIdealSize(150, 100 );
-
 
 	    saveVariablesInInstance(this,nameControl,name,resource);
 
