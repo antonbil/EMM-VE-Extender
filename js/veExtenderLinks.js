@@ -1,11 +1,11 @@
-
+"use strict";
 
 /**
  * addEMMLinks
  * adds menu-itmes, each one starts a dialog
  */
 function addEMMLinks() {
-"use strict";
+
     var queries=veExtenderQueries();
    //console.log(queries);
   loadEMMDialog('Internal link',"linkpage",'visualeditor-emm-menuinternallinktitle','visualeditor-emm-dialoginternallinktitle','visualeditor-emm-link-to-page',
