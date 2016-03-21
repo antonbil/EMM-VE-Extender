@@ -1,3 +1,7 @@
+/**
+ * addEMMLinks
+ * adds menu-itmes, each one starts a dialog
+ */
 function addEMMLinks(){
    var queries=veExtenderQueries();
    console.log(queries);
@@ -30,6 +34,18 @@ function addEMMLinks(){
 //ve.ui.toolFactory.bindings.register[6].context.forceExpand= [ 'media', 'insertTable' ,'linkpage' ,'linkwebsite' ,'linkreference'];
 
 }
+/**
+ * loadEMMDialog
+ * load dialog
+ * @param  {String}	template template to be generated
+ * @param  {[String]}toolid unique String to be used as id,also base for id´s of fields
+ * @param  {[String]} menutext language-text to be displayed as part of menu
+ * @param  {[String]} dialogtext language-text to be displayed at top of dialog
+ * @param  {[String]} linktotext language-text to be displayed as link
+ * @param  {[String]} askQuery definition of ask-query to be executed as part of resourceControl
+ * @param  {[function]} templateResult defines what to return as result of template; input parameters: namedata, linkdata, data
+ * @return {[Array]} myFields array of fields to be added to dialog
+ */
   function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,askQuery,templateResult,myfields){
  //at start of dialog
 //get pagenames for pages with askQuery, with Semantic title as a property
@@ -40,7 +56,7 @@ var pagenames = [];
 
 
     var makeInsertTool = function(buttonMessage, dialogueMessage, collection, element, templateName, nameLabel, resourceLabel,
-				  copySelectedTextToNameField,saveVariablesInInstance
+				  copySelectedTextToNameField
 				 , myfields) {
 	var dialogueName = collection + " dialogue",//collection=id to make dialog unique
 	    toolName = collection + " tool";
@@ -70,7 +86,6 @@ var pagenames = [];
         dialogue.prototype.onSelect = function () {
         };
 
-
 	dialogue.prototype.getActionProcess = function ( action ) {
 	    var that = this;
 
@@ -93,56 +108,56 @@ var pagenames = [];
 	    }
 	};
 
-//within getBodyHeight
-//get selected text, and set default text of first field to that selected text
-//do this within getBodyHeight because it is executed before the dialog becomes visible
-dialogue.prototype.getBodyHeight = function () {
+	//within getBodyHeight
+	//get selected text, and set default text of first field to that selected text
+	//do this within getBodyHeight because it is executed before the dialog becomes visible
+	dialogue.prototype.getBodyHeight = function () {
 
-  //first get data for input-fields. Get query-data, and add selected data
-  //save instance
-  var dialogthat=this;
+	  //first get data for input-fields. Get query-data, and add selected data
+	  //save instance
+	  var dialogthat=this;
 
-  var api = new mw.Api();
-  // Start a "GET" request
-  api.get( {
-      action: 'ask',
-      parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
-      //query was: [[Modification date::+]]|?Modification date|?Heading nl
-      //test-query:[[Category:Context]]|?Modification date|?Heading nl
-      query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
-  } ).done( function ( data ) {
-    //parse data
-    //first get results within data
-      var res=data.query.results;
-      //console.log(res);
+	  var api = new mw.Api();
+	  // Start a "GET" request
+	  api.get( {
+	      action: 'ask',
+	      parameters:'limit:10000',//check how to increase limit of ask-result; done in LocalSettings.php
+	      //query was: [[Modification date::+]]|?Modification date|?Heading nl
+	      //test-query:[[Category:Context]]|?Modification date|?Heading nl
+	      query: askQuery+'|?Semantic title'//get all pages; include property Semantic title
+	  } ).done( function ( data ) {
+	    //parse data
+	    //first get results within data
+	      var res=data.query.results;
+	      //console.log(res);
 
-      //array to store results
-      var arr=[];
-      //for all objects in result
-      for (prop in res) {
-	  if (!res.hasOwnProperty(prop)) {
-	      //The current property is not a direct property of p
-	      continue;
-	  }
-	  //property defined
-	  //now get pagename and Semantic title (if available)
-	  var pagename=res[prop].fulltext;
-	  var semantictitle=res[prop].printouts['Semantic title'][0];
-	  var title='';
-	  if (semantictitle)
-	    arr.push({ value: semantictitle, data: pagename });
-	  else
-	    arr.push({ value: pagename, data: pagename });
-      }
+	      //array to store results
+	      var arr=[];
+	      //for all objects in result
+	      for (prop in res) {
+		  if (!res.hasOwnProperty(prop)) {
+		      //The current property is not a direct property of p
+		      continue;
+		  }
+		  //property defined
+		  //now get pagename and Semantic title (if available)
+		  var pagename=res[prop].fulltext;
+		  var semantictitle=res[prop].printouts['Semantic title'][0];
+		  var title='';
+		  if (semantictitle)
+		    arr.push({ value: semantictitle, data: pagename });
+		  else
+		    arr.push({ value: pagename, data: pagename });
+	      }
 
-      pagenames=arr;
-    //store data in inputfields
-    copySelectedTextToNameField(dialogthat);
-  });
+	      pagenames=arr;
+	    //store data in inputfields
+	    copySelectedTextToNameField(dialogthat);
+	  });
 
-  //return height of dialog; this is original purpose of this function
-    return 400;
-}
+	  //return height of dialog; this is original purpose of this function
+	    return 400;
+	}
 
 	dialogue.prototype.initialize = function() {
 	    var instance = this,
@@ -168,18 +183,18 @@ dialogue.prototype.getBodyHeight = function () {
 			    {
 			      type: 'mwTransclusionInline',
 			      attributes: {
-				mw: {
-				  parts: [
-				    { template: {
-					target: {
-					  href: 'Template:'+templateName,
-					  wt: templateName
-					},
-					params: templateResult(namedata,linkdata,data)
-				    }
-				    }
-				  ]
-				}
+					mw: {
+					  parts: [
+					    { template: {
+							target: {
+							  href: 'Template:'+templateName,
+							  wt: templateName
+							},
+							params: templateResult(namedata,linkdata,data)
+						    }
+					    }
+					  ]
+					}
 			      }
 			    }
 			  ]
@@ -221,6 +236,7 @@ dialogue.prototype.getBodyHeight = function () {
 		    }
 		),
 
+		//add functions to parse and add fieds at end of dialog
 		getElements=function (fields){
 		  //for each field in parametr, create an element in the dialogue
 		  var arr=[];
@@ -246,6 +262,10 @@ dialogue.prototype.getBodyHeight = function () {
 		    text:label
 		  }
 		},
+		/**
+		 * @param  {Array} myFields objects to represent a field to be displayed
+		 * @return {[Array]} fields converted to array
+		 */
 		loadFields=function (myfields){
 		  var arr=[];
 		  for (var i=0;i<myfields.length;i++)
@@ -258,7 +278,7 @@ dialogue.prototype.getBodyHeight = function () {
 		    $content: [
 			name.$element,
 			resource.$element
-		    ].concat(getElements(fields))
+		    ].concat(getElements(fields))//add extra fields at end of dialog
 		}),
 
 		panel = new OO.ui.PanelLayout({
@@ -273,13 +293,18 @@ dialogue.prototype.getBodyHeight = function () {
 		    ]
 		});
 
+	    //add DOM-id to parent of input-field
+	    resourceControl.$element.attr("id",toolid+"id");
+	    //add DOM-id to parent of name-field
+	    name.$element.attr("id",toolid+"nameid");
 	    OO.ui.ProcessDialog.prototype.initialize.call(this);
 
-	    saveVariablesInInstance(this,nameControl,name,resource);
+	    this.nameControl=nameControl;
 
 	    this.content = stack;
 	    this.insert = insert;
 	    this.fields=fields;
+	    this.setDimensions({width:700,minWidth:700});
 
 	    this.$body.append(this.content.$element);
 
@@ -292,13 +317,13 @@ dialogue.prototype.getBodyHeight = function () {
 	    nameControl.$input.css("width", "100%");
 	    resourceControl.$input.css("width", "100%");
 
-	    $(":text").css({ 'width':'300px'}); //TODO schalen naar breedte dialoog (?), voor nu even hard-coded
+	    //$(":text").css({ 'width':'300px'}); //TODO schalen naar breedte dialoog (?), voor nu even hard-coded
 	};
 
 	ve.ui.windowFactory.register(dialogue);
 
 	/*
-	 Make the tool.
+	 create a menu-entry in the current dropdown-menu of the main toolbar
 	 */
 	var tool = function(toolGroup, config) {
 	    ve.ui.Tool.call(this, toolGroup, config);
@@ -326,6 +351,10 @@ dialogue.prototype.getBodyHeight = function () {
     };
 
 
+/**
+ * @param  {object} that object that contains field that will contain the text to be displayed
+ * @return {[type]}
+ */
     var copySelectedTextToNameField=function(that){
       //get selected text from SurfaceModel
       var surfaceModel = ve.init.target.getSurface().getModel();
@@ -333,48 +362,34 @@ dialogue.prototype.getBodyHeight = function () {
       //console.log(surfaceModel);
       if (surfaceModel.getFragment().selection.range){
 	//console.log(surfaceModel.getFragment().selection.range);
-	for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){
-	  var element=surfaceModel.getFragment().document.data.data[i];
-	  var toAdd=element;
-	  if (element[0])//if element[0], then not plain text
-	    toAdd=element[0];//
-	  //console.log(toAdd);
-	  selected+=toAdd;
-	}
+		for (i=surfaceModel.getFragment().selection.range.start;i<surfaceModel.getFragment().selection.range.end;i++){
+		  var element=surfaceModel.getFragment().document.data.data[i];
+		  var toAdd=element;
+		  if (element[0])//if element[0], then not plain text
+		    toAdd=element[0];//
+		  //console.log(toAdd);
+		  selected+=toAdd;
+		}
       }
       //set text to selected
       if (selected.length>0){
-	that.nameControl.setValue(selected);
-	that.nameControl.disabled=true;//does not work!?
-	var inputfieldoutside=that.inputField;
-	$(inputfieldoutside).val(selected);
+		that.nameControl.setValue(selected);
+		that.nameControl.disabled=true;//does not work!?
+		var inputfieldoutside=$( "#"+toolid+"nameid" ).find("input");;
+		$(inputfieldoutside).val(selected);
       }
 
+      var complete=$( "#"+toolid+"id" ).find("input");
+      //console.log(complete);
       that.pageid="";
       //set autocomplete on resource-field
-      $(that.resourceField).autocomplete({
+      $(complete).autocomplete({
 	  lookup: pagenames,//pagenames are created at the start of dialog
 	  onSelect: function (suggestion) {
 	    that.pageid=suggestion.data;
 	  },
-	  appendTo: that.resourceField.parentElement
+	  appendTo: complete.parentElement
 	});
-    }
-
-    var saveVariablesInInstance=function(that,nameControl,name,resource){
-      //at bottom of initialize function
-
-      //store it in object so it can be retrieved later
-      that.nameControl=nameControl;
-      //get javascript-element of fields, and save it in instance-variables
-      var inputField=name.$field[0].firstElementChild.firstChild;
-
-      that.inputField=inputField;
-
-      //get javascript-element of resource-field
-      var resourceField=resource.$field[0].firstElementChild.firstChild;
-      //store it in object so it can be retrieved later
-      that.resourceField=resourceField;
     }
 
     makeInsertTool(
@@ -386,7 +401,7 @@ dialogue.prototype.getBodyHeight = function () {
 	OO.ui.deferMsg( 'visualeditor-emm-text-in-page' )(),//nameLabel
 	OO.ui.deferMsg( linktotext )(),//resourceLabel
 	copySelectedTextToNameField,
-	saveVariablesInInstance,myfields
+	myfields
     );//todo: make extra basic dialog, add function with makeInsertTool to execute it, instead of that.insert();--> button text must bee continue instead of save.
 
 }
