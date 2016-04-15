@@ -218,8 +218,7 @@ addOrEditResourceDialog.prototype.getBodyHeight = function () {
       //console.log(res);
 
       //array to store results
-       var pagenames=[];
-      //for all objects in result
+      var pagenames=[];
       for (prop in res) {
 	  if (!res.hasOwnProperty(prop)) {
 	      //The current property is not a direct property of p
@@ -231,10 +230,36 @@ addOrEditResourceDialog.prototype.getBodyHeight = function () {
 	  var semantictitle=res[prop].printouts['Semantic title'][0];
 	  var title='';
 	  if (semantictitle)
-	    pagenames.push({ value: semantictitle, data: pagename });
+	    title=semantictitle;
 	  else
-	    pagenames.push({ value: pagename, data: pagename });
+	    title=pagename;
+	  pagenames.push({ value: title, data: pagename });
       }
+      
+      
+      pagenames.sort(function(a, b) {
+	  if (a.value > b.value) {
+	    return 1;
+	  }
+	  if (a.value < b.value) {
+	    return -1;
+	  }
+	  // a must be equal to b
+	  return 0;
+	});
+      var prevTitle="";
+      for (var i=0;i<pagenames.length;i++){
+	var item=pagenames[i];
+	var title=item.value;
+	  if (title==prevTitle){
+	    pagenames[i].value=title+"("+pagename+")";
+	  }
+	  else
+	  {
+	    prevTitle=title;
+	  }
+      }
+      
 
       var complete=$( "#"+dialogName+"id" ).find("input");
     //store data in inputfields 

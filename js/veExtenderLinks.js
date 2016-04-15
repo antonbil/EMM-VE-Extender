@@ -135,22 +135,57 @@ var pagenames = [];
           //array to store results
           var arr=[];
           //for all objects in result
-          for (prop in res) {
-              if (res.hasOwnProperty(prop)) {
-                  //The current property is a direct property of p
-                  //now get pagename and Semantic title (if available)
-                  var pagename=res[prop].fulltext;
-                  var semantictitle=res[prop].printouts['Semantic title'][0];
-                  var title='';
-                  if (semantictitle){
-                    arr.push({ value: semantictitle, data: pagename });
-                    }
-                  else {
-                    arr.push({ value: pagename, data: pagename });
-                    }
-              }
-          }
 
+	  var prevTitle="";
+	  var numTitle=0;
+	  for (prop in res) {
+	      if (!res.hasOwnProperty(prop)) {
+		  //The current property is not a direct property of p
+		  continue;
+	      }
+	      //property defined
+	      //now get pagename and Semantic title (if available)
+	      var pagename=res[prop].fulltext;
+	      var semantictitle=res[prop].printouts['Semantic title'][0];
+	      var title='';
+	      if (semantictitle)
+		title=semantictitle;
+	      else
+		title=pagename;
+	      if (title==prevTitle){
+		numTitle++;
+		title=title+"("+pagename+")";
+	      }
+	      else
+	      {
+		prevTitle=title;
+		numTitle=0;
+	      }
+		console.log(title);
+	      arr.push({ value: title, data: pagename });
+	  }
+	  arr.sort(function(a, b) {
+	      if (a.value > b.value) {
+		return 1;
+	      }
+	      if (a.value < b.value) {
+		return -1;
+	      }
+	      // a must be equal to b
+	      return 0;
+	    });
+	  var prevTitle="";
+	  for (var i=0;i<arr.length;i++){
+	    var item=arr[i];
+	    var title=item.value;
+	      if (title==prevTitle){
+		arr[i].value=title+"("+pagename+")";
+	      }
+	      else
+	      {
+		prevTitle=title;
+	      }
+	  }
           pagenames=arr;
         //store data in inputfields
         copySelectedTextToNameField(dialogthat);
@@ -318,10 +353,12 @@ var pagenames = [];
 
         resourceControl.$input.attr("type", "text");
 
-        nameControl.$input.css("width", "100%");
+        //nameControl.$input.css("width", "130px");
         resourceControl.$input.css("width", "100%");
 
-        //$(":text").css({ 'width':'300px'}); //TODO schalen naar breedte dialoog (?), voor nu even hard-coded
+        $(":text").css({ 'width':'300px'}); //TODO schalen naar breedte dialoog (?), voor nu even hard-coded
+	//outline elements of Form
+	$(".oo-ui-fieldLayout-body>.oo-ui-labelElement-label").css( {'width': '130px'});//TODO: workaround; see how this can be fixed in css of Chameleon Skin
     };
 
     ve.ui.windowFactory.register(dialogue);
