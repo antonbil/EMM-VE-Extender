@@ -395,7 +395,7 @@ var pagenames = [];
             that.pageid=suggestion.data;
           },
           appendTo: complete.parentElement,
-	  maxHeight: 500
+	  maxHeight: 300
         });
     }
 
