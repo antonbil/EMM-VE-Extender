@@ -249,7 +249,7 @@ addOrEditResourceDialog.prototype.getBodyHeight = function () {
 	  appendTo: complete.parentElement
 	});
   });
-  return 400;
+  return 120;
 }
 addOrEditResourceDialog.prototype.initialize = function () {
 	addOrEditResourceDialog.super.prototype.initialize.call( this );

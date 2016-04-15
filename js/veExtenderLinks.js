@@ -14,14 +14,16 @@ function addEMMLinks() {
                       link: { wt: linkdata },
                       name: { wt: namedata }
                     };
-    }, []
+    }, [],
+    120
   );
   loadEMMDialog('External link',"linkwebsite",'visualeditor-emm-menuexternallinktitle','visualeditor-emm-dialogexternallinktitle','visualeditor-emm-link-to-resource',
     queries.linkwebsites,function(namedata,linkdata){return {
                       resource: { wt: linkdata },
                       name: { wt: namedata }
                     };
-    }, []
+    }, [],
+    120
   );
   loadEMMDialog('Cite',"linkreference",'visualeditor-emm-menucitetitle','visualeditor-emm-dialogcitetitle','visualeditor-emm-link-to-resource',
     queries.linkreferences,function(namedata,linkdata, data){
@@ -32,7 +34,8 @@ function addEMMLinks() {
                       name: { wt: namedata },
                       optional: {wt: optionaldata}
                     };
-    }, [{label:"optional",defaultval:"",type:"text",description:OO.ui.deferMsg( 'visualeditor-mwtemplate-cite-optional' )}]
+    }, [{label:"optional",defaultval:"",type:"text",description:OO.ui.deferMsg( 'visualeditor-mwtemplate-cite-optional' )}],
+		160
   );
 
 //ve.ui.toolFactory.bindings.register[6].context.forceExpand= [ 'media', 'insertTable' ,'linkpage' ,'linkwebsite' ,'linkreference'];
@@ -50,7 +53,7 @@ function addEMMLinks() {
  * @param  {[function]} templateResult defines what to return as result of template; input parameters: namedata, linkdata, data
  * @return {[Array]} myFields array of fields to be added to dialog
  */
-  function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,askQuery,templateResult,myfields){
+  function loadEMMDialog(template, toolid,menutext,dialogtext,linktotext,askQuery,templateResult,myfields,heightForm){
  //at start of dialog
 //get pagenames for pages with askQuery, with Semantic title as a property
 //
@@ -63,7 +66,7 @@ var pagenames = [];
 
     var makeInsertTool = function(buttonMessage, dialogueMessage, collection, element, templateName, nameLabel, resourceLabel,
                   copySelectedTextToNameField
-                 , myfields) {
+                 , myfields, heightForm) {
     var dialogueName = collection + " dialogue",//collection=id to make dialog unique
         toolName = collection + " tool";
 
@@ -154,7 +157,7 @@ var pagenames = [];
       });
 
       //return height of dialog; this is original purpose of this function
-        return 400;
+        return heightForm;
     };
 
     dialogue.prototype.initialize = function() {
@@ -391,7 +394,8 @@ var pagenames = [];
           onSelect: function (suggestion) {
             that.pageid=suggestion.data;
           },
-          appendTo: complete.parentElement
+          appendTo: complete.parentElement,
+	  maxHeight: 500
         });
     }
 
@@ -404,7 +408,7 @@ var pagenames = [];
         OO.ui.deferMsg( 'visualeditor-emm-text-in-page' )(),//nameLabel
         OO.ui.deferMsg( linktotext )(),//resourceLabel
         copySelectedTextToNameField,
-        myfields
+        myfields,heightForm
     );//todo: make extra basic dialog, add function with makeInsertTool to execute it, instead of that.insert();--> button text must bee continue instead of save.
 
 }
