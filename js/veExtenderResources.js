@@ -183,7 +183,7 @@ function addEMMResources(){
       OO.ui.deferMsg( 'visualeditor-emm-manage-files' )(), 
 		  OO.ui.deferMsg( 'visualeditor-emm-existing-file' )()+':',function (pageName){
   //todo: characters are added to end of string; see why this happens!?
-	  doOpen(encodeURI(getStartAddress()+'index.php?title='+spacesToUnderscore(pageName)+'&action=formedit​'));
+	  doOpen(encodeURI(getStartAddress()+'index.php/Special:FormEdit/Resource_Light/'+spacesToUnderscore(pageName)));
 
 });
 }
