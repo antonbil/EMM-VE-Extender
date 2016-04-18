@@ -152,20 +152,27 @@ function addEMMResources(){
 		    }
 
 		  }
-
    var queries=veExtenderQueries();
    //todo: use queries.resourcepages
      createDialog('addresourcedialog',queries.resourcepages,OO.ui.deferMsg( 'visualeditor-emm-add-page' )(),
 		  processResult,OO.ui.deferMsg( 'visualeditor-emm-add-page' )(),
 		  OO.ui.deferMsg( 'visualeditor-emm-manage-pages' )(), 
-		  OO.ui.deferMsg( 'visualeditor-emm-existing-page' )()+':');
+		  OO.ui.deferMsg( 'visualeditor-emm-existing-page' )()+':',function (pageName){
+  //todo: characters are added to end of string; see why this happens!?
+	  doOpen(encodeURI(getStartAddress()+'index.php?title='+spacesToUnderscore(pageName)));
+
+});
      createDialog('addhyperlinkdialog',queries.resourcehyperlinks,OO.ui.deferMsg( 'visualeditor-emm-add-hyperlink' )(),
 	function (){
 	  doOpen(getStartAddress()+'index.php/Special:FormEdit/Resource_Hyperlink?Resource_Description%5Bcreated+in+page%5D='+pageProperties.pagename);
 	}
       ,OO.ui.deferMsg( 'visualeditor-emm-add-hyperlink' )(),
       OO.ui.deferMsg( 'visualeditor-emm-manage-hyperlinks' )(), 
-		  OO.ui.deferMsg( 'visualeditor-emm-existing-hyperlink' )()+':');
+		  OO.ui.deferMsg( 'visualeditor-emm-existing-hyperlink' )()+':',function (pageName){
+  //todo: characters are added to end of string; see why this happens!?
+	  doOpen(encodeURI(getStartAddress()+'index.php?title='+spacesToUnderscore(pageName)+'&action=formedit​'));
+
+});
      createDialog('addlocallinkdialog',queries.resourceuploadables,
      OO.ui.deferMsg( 'visualeditor-emm-add-file' )(),
 	function (){
@@ -174,13 +181,17 @@ function addEMMResources(){
 	}
       ,OO.ui.deferMsg( 'visualeditor-emm-add-file' )(),
       OO.ui.deferMsg( 'visualeditor-emm-manage-files' )(), 
-		  OO.ui.deferMsg( 'visualeditor-emm-existing-file' )()+':');
+		  OO.ui.deferMsg( 'visualeditor-emm-existing-file' )()+':',function (pageName){
+  //todo: characters are added to end of string; see why this happens!?
+	  doOpen(encodeURI(getStartAddress()+'index.php?title='+spacesToUnderscore(pageName)+'&action=formedit​'));
+
+});
 }
 
 /*
  * create dialog to add or edit resource
  */
-function createDialog(dialogName,askQuery, actionName, processResult,actionTitle,dialogTitle, labelTitle){
+function createDialog(dialogName,askQuery, actionName, processResult,actionTitle,dialogTitle, labelTitle,editPage){
 /* Static Properties */
 //was: ve.ui.EditOrInsertDialog
 var addOrEditResourceDialog = function( manager, config ) {
@@ -195,11 +206,6 @@ OO.inheritClass( addOrEditResourceDialog, ve.ui.FragmentDialog );
 addOrEditResourceDialog.static.name = dialogName;
 addOrEditResourceDialog.static.title = dialogTitle;
 addOrEditResourceDialog.static.size = 'medium';
-function editPage(pageName){
-  //todo: characters are added to end of string; see why this happens!?
-	  doOpen(encodeURI(getStartAddress()+'index.php?title='+spacesToUnderscore(pageName)+'&action=formedit​'));
-
-}
 addOrEditResourceDialog.prototype.getBodyHeight = function () {
   var dialogthat=this;
   
