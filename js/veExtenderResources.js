@@ -268,6 +268,8 @@ addOrEditResourceDialog.prototype.getBodyHeight = function () {
       
 
       var complete=$( "#"+dialogName+"id" ).find("input");
+      //TODO workaround, set width of label to 450px
+      $(".oo-ui-fieldLayout-body").width(450);
     //store data in inputfields 
       $(complete).autocomplete({
 	  lookup: pagenames,//pagenames are created at the start of dialog
@@ -298,6 +300,7 @@ addOrEditResourceDialog.prototype.initialize = function () {
 		'$': this.$,
 		'label': labelTitle
 	} );
+	this.subjectField.$element.attr("id",dialogName+"nameid");
 	addOrEditResourceDialog.static.actions = [
 
 	{ action: 'save', label: actionTitle, flags: [ /*'primary',*/ 'progressive' ] },
