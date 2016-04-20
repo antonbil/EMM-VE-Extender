@@ -161,7 +161,7 @@ var pagenames = [];
 		prevTitle=title;
 		numTitle=0;
 	      }
-		console.log(title);
+		//console.log(title);
 	      arr.push({ value: title, data: pagename });
 	  }
 	  arr.sort(function(a, b) {
