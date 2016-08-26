@@ -38,16 +38,18 @@ console.log(e);
 }
 
 
-selectFile.onDrop=function() {
+selectFile.onDrop=function(e) {
 alert(":drop" );
 console.log(selectFile);
+console.log(e);
+
 }
 
 selectFile.connect(selectFile,{
-  drop:'onDrop'
+  change:'onDrop',//emit-event, see code
+  fileSelected:'onFileSelected'
 }
-)
-      
+)      
 // Create a Fieldset layout.
 var fieldset = new OO.ui.FieldsetLayout( { 
   label: 'FieldsetLayout: Examples of label alignment and help text',
