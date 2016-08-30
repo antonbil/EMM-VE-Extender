@@ -90,6 +90,7 @@ new OO.ui.FieldLayout( selectFile, {
 
 var buttonOpen = new OO.ui.ButtonWidget( {
   label: 'OK',
+  flags: [ 'progressive' ],
   target: '_blank'
 } );    
 buttonOpen.$element.attr("id","buttonopen");
@@ -173,8 +174,11 @@ MyDialog.prototype.initialize = function () {
   MyDialog.super.prototype.initialize.call( this );
   this.content = new OO.ui.PanelLayout( { padded: true, expanded: false } );
  this.content.$element.append( fieldset.$element);
- this.content.$element.append( buttonCancel.$element );
- this.content.$element.append( buttonOpen.$element );
+ //this.content.$element.append( buttonCancel.$element );
+ //this.content.$element.append( buttonOpen.$element );
+ buttonOpen.$element.insertBefore(".oo-ui-processDialog-actions-other");
+buttonCancel.$element.insertBefore(".oo-ui-processDialog-actions-other");
+
  
   this.$body.append( this.content.$element );
 this.$element
